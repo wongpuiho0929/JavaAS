@@ -61,3 +61,6 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+/BankAccountManagementSystem/nbproject/private/
+/BankAccountManagementSystem/build/
+/BankAccountManagementSystem/dist/
