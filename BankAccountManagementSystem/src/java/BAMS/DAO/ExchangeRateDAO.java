@@ -51,12 +51,13 @@ public class ExchangeRateDAO extends DAO {
 
             if (success) {
                 model.setId(nextId);
+                data.put(model.getId(), model);
             }
 
         } catch (IOException | SQLException e) {
             return success;
         }
-        data.put(model.getId(), model);
+        
         return success;
     }
 

@@ -25,14 +25,14 @@ import java.util.Hashtable;
  */
 public class HistoryDAO extends DAO {
 
-    public HistoryDAO(){
+    public HistoryDAO() {
         table = "History";
         data = new Hashtable<>();
         getData();
     }
 
     @Override
-    public synchronized  boolean create(Model m) {
+    public synchronized boolean create(Model m) {
         History model = (History) m;
         boolean success = false;
         try {
@@ -54,17 +54,17 @@ public class HistoryDAO extends DAO {
 
             if (success) {
                 model.setId(nextId);
+                data.put(model.getId(), model);
             }
 
         } catch (IOException | SQLException e) {
             return success;
         }
-        data.put(model.getId(), model);
         return success;
     }
 
     @Override
-    public synchronized  boolean delete(Model m) {
+    public synchronized boolean delete(Model m) {
 
         History model = (History) m;
         boolean success = false;
@@ -90,7 +90,7 @@ public class HistoryDAO extends DAO {
     }
 
     @Override
-    public  synchronized boolean update(Model m) {
+    public synchronized boolean update(Model m) {
         History model = (History) m;
         boolean success = false;
         try {

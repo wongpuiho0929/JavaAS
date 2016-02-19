@@ -13,6 +13,8 @@ public class Test {
             setting();
             createTable();
             createData();
+            printTablesSize();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -21,9 +23,9 @@ public class Test {
     private static void createTable() {
 
         DAO.rebuild();
-        for(DAO d : DAOlist)
+        for (DAO d : DAOlist) {
             d.refresh();
-        DAO.printAllCount();
+        }
 
     }
 
@@ -39,11 +41,12 @@ public class Test {
         b2.setAddress("4-4A Des Voeux Road Central, Hong Kong");
         b2.setTel("28868868");
         bankDB.create(b2);
-        DAO.printAllCount();
+
+        System.out.println("Data Create Finish");
     }
 
-    private static void printTableSize() {
-        System.out.println(DAO.printAllCount());
+    private static void printTablesSize() {
+        System.out.println("\n"+DAO.printAllCount());
     }
 
     private static void setting() {

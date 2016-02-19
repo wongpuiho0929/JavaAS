@@ -37,10 +37,10 @@ public class BankDAO extends DAO {
             p.setString(index++, dateToString(model.getDeletedAt()));
             p.execute();
             success = true;
-            System.out.println(nextId);
+//            System.out.println(nextId);
             if (success) {
                 model.setId(nextId);
-                System.out.println(model.getId() == null);
+//                System.out.println(model.getId() == null);
                 data.put(model.getId(), model);
             }
 

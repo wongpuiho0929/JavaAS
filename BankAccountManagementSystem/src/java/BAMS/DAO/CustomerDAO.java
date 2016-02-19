@@ -22,7 +22,7 @@ public class CustomerDAO extends DAO {
     }
 
     @Override
-    public synchronized  boolean create(Model m) {
+    public synchronized boolean create(Model m) {
         Customer c = (Customer) m;
         boolean success = false;
         try {
@@ -45,18 +45,18 @@ public class CustomerDAO extends DAO {
 
             if (success) {
                 c.setId(nextId);
+                data.put(c.getId(), c);
             }
 
         } catch (IOException | SQLException e) {
             return success;
         }
-        data.put(c.getId(), c);
         return success;
     }
 
     @Override
-    public synchronized  boolean delete(Model m) {
-        
+    public synchronized boolean delete(Model m) {
+
         Customer c = (Customer) m;
         boolean success = false;
         try {
@@ -81,7 +81,7 @@ public class CustomerDAO extends DAO {
     }
 
     @Override
-    public synchronized  boolean update(Model m) {
+    public synchronized boolean update(Model m) {
         Customer c = (Customer) m;
         boolean success = false;
         try {

@@ -22,7 +22,7 @@ public class AccountDAO extends DAO {
     }
 
     @Override
-    public synchronized  boolean create(Model m) {
+    public synchronized boolean create(Model m) {
         Account model = (Account) m;
         boolean success = false;
         try {
@@ -44,8 +44,8 @@ public class AccountDAO extends DAO {
 
             if (success) {
                 model.setId(nextId);
+                data.put(model.getId(), model);
             }
-            data.put(model.getId(), model);
         } catch (IOException | SQLException e) {
             return success;
         }
@@ -54,7 +54,7 @@ public class AccountDAO extends DAO {
     }
 
     @Override
-    public synchronized  boolean delete(Model m) {
+    public synchronized boolean delete(Model m) {
 
         Account model = (Account) m;
         boolean success = false;
@@ -80,7 +80,7 @@ public class AccountDAO extends DAO {
     }
 
     @Override
-    public synchronized  boolean update(Model m) {
+    public synchronized boolean update(Model m) {
         Account model = (Account) m;
         boolean success = false;
         try {
