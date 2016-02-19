@@ -1,9 +1,15 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package BAMS.DAO;
 
 import static BAMS.DAO.DAO.getConnection;
 import BAMS.Model.Account;
-import BAMS.Model.Bank;
 import BAMS.Model.Customer;
+import BAMS.Model.ExchangeRate;
+import BAMS.Model.History;
 import BAMS.Model.Model;
 import java.io.IOException;
 import java.sql.Connection;
@@ -13,29 +19,33 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.Hashtable;
 
-public class AccountDAO extends DAO {
+/**
+ *
+ * @author User
+ */
+public class HistoryDAO extends DAO {
 
-    public AccountDAO() {
-        data = new Hashtable<String, Model>();
-        table = "Account";
+    public HistoryDAO(){
+        table = "History";
+        data = new Hashtable<>();
         getData();
     }
 
     @Override
     public synchronized  boolean create(Model m) {
-        Account model = (Account) m;
+        History model = (History) m;
         boolean success = false;
         try {
             Connection conn = getConnection();
-            String sql = "Insert Into Account values(?,?,?,?,?,?,?,?)";
+            String sql = "Insert Into History values(?,?,?,?,?,?,?,?)";
             PreparedStatement p = conn.prepareStatement(sql);
             int index = 1;
             String nextId = getNextId();
             p.setString(index++, nextId);
             p.setString(index++, model.getCustomer().getId());
             p.setString(index++, model.getBank().getId());
-            p.setString(index++, model.getAccountNo());
-            p.setDouble(index++, model.getBalance());
+            p.setString(index++, model.getAccount().getId());
+            p.setString(index++, model.getAction());
             p.setString(index++, dateToString(model.getCreatedAt()));
             p.setString(index++, dateToString(model.getUpdatedAt()));
             p.setString(index++, dateToString(model.getDeletedAt()));
@@ -45,22 +55,22 @@ public class AccountDAO extends DAO {
             if (success) {
                 model.setId(nextId);
             }
-            data.put(model.getId(), model);
+
         } catch (IOException | SQLException e) {
             return success;
         }
-
+        data.put(model.getId(), model);
         return success;
     }
 
     @Override
     public synchronized  boolean delete(Model m) {
 
-        Account model = (Account) m;
+        History model = (History) m;
         boolean success = false;
         try {
             Connection conn = getConnection();
-            String sql = "update Account set deletedAt=? where id=?";
+            String sql = "update History set deletedAt=? where id=?";
             PreparedStatement p = conn.prepareStatement(sql);
             int index = 1;
             Date now = new Date();
@@ -80,22 +90,23 @@ public class AccountDAO extends DAO {
     }
 
     @Override
-    public synchronized  boolean update(Model m) {
-        Account model = (Account) m;
+    public  synchronized boolean update(Model m) {
+        History model = (History) m;
         boolean success = false;
         try {
             Connection conn = getConnection();
-            String sql = "update Account set customerId=?,bankId=?,accountNo=?,balance=?,createdAt=?,updatedAt=?,deletedAt=? where id=?";
+            String sql = "update History set customerId=?,bankId=?,accountId=?,action=?,createdAt=?,updatedAt=?,deletedAt=? where id=?";
             PreparedStatement p = conn.prepareStatement(sql);
             int index = 1;
             Date now = new Date();
             p.setString(index++, model.getCustomer().getId());
             p.setString(index++, model.getBank().getId());
-            p.setString(index++, model.getAccountNo());
-            p.setDouble(index++, model.getBalance());
+            p.setString(index++, model.getAccount().getId());
+            p.setString(index++, model.getAction());
             p.setString(index++, dateToString(model.getCreatedAt()));
             p.setString(index++, dateToString(now));
             p.setString(index++, dateToString(model.getDeletedAt()));
+
             p.setString(index++, model.getId());
             success = p.execute();
 
@@ -110,32 +121,33 @@ public class AccountDAO extends DAO {
     }
 
     @Override
-    protected String getNextId() {
-        return "A" + data.size();
-    }
-
-    @Override
     protected void getData() {
         try {
             Connection conn = getConnection();
-            ResultSet rs = conn.createStatement().executeQuery("select * from account where deletedAt != 'N/A';");
+
+            ResultSet rs = conn.createStatement().executeQuery("select * from history where deletedAt != 'N/A';");
             while (rs.next()) {
-                Account ac = new Account();
+                History h = new History();
+                Account ac = (Account) getDAO("Account").findById(rs.getString("accountId"));
                 Customer c = (Customer) getDAO("Customer").findById(rs.getString("customerId"));
-                Bank b = (Bank) getDAO("Customer").findById(rs.getString("bankId"));
-                ac.setAccountNo(rs.getString("accountNo"));
-                ac.setId(rs.getString("id"));
-                ac.setBalance(rs.getDouble("balance"));
-                ac.setCustomer(c);
-                ac.setBank(b);
-                ac.setCreatedAt(stringToDate(rs.getString("createdAt")));
-                ac.setUpdatedAt(stringToDate(rs.getString("updatedAt")));
-                ac.setDeletedAt(stringToDate(rs.getString("deletedAt")));
-                data.put(ac.getId(), ac);
+                h.setId(rs.getString("id"));
+                h.setAccount(ac);
+                h.setAction(rs.getString("action"));
+                h.setCustomer(c);
+                h.setCreatedAt(stringToDate(rs.getString("createdAt")));
+                h.setUpdatedAt(stringToDate(rs.getString("updatedAt")));
+                h.setDeletedAt(stringToDate(rs.getString("deletedAt")));
+
+                data.put(h.getId(), h);
             }
         } catch (SQLException | IOException ex) {
             ex.printStackTrace();
         }
+    }
+
+    @Override
+    protected String getNextId() {
+        return "H" + data.size();
     }
 
 }
