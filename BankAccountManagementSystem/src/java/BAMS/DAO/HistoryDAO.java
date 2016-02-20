@@ -8,7 +8,6 @@ package BAMS.DAO;
 import static BAMS.DAO.DAO.getConnection;
 import BAMS.Model.Account;
 import BAMS.Model.Customer;
-import BAMS.Model.ExchangeRate;
 import BAMS.Model.History;
 import BAMS.Model.Model;
 import java.io.IOException;
@@ -16,6 +15,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 
@@ -28,7 +28,6 @@ public class HistoryDAO extends DAO {
     public HistoryDAO() {
         table = "History";
         data = new Hashtable<>();
-        getData();
     }
 
     @Override
@@ -52,11 +51,10 @@ public class HistoryDAO extends DAO {
 
             success = p.execute();
 
-            if (success) {
-                model.setId(nextId);
-                data.put(model.getId(), model);
-            }
+            model.setId(nextId);
+            data.put(model.getId(), model);
 
+            conn.close();
         } catch (IOException | SQLException e) {
             return success;
         }
@@ -79,10 +77,9 @@ public class HistoryDAO extends DAO {
 
             success = p.execute();
 
-            if (success) {
-                model.setDeletedAt(now);
-            }
+            model.setDeletedAt(now);
 
+            conn.close();
         } catch (IOException | SQLException e) {
             return success;
         }
@@ -110,10 +107,9 @@ public class HistoryDAO extends DAO {
             p.setString(index++, model.getId());
             success = p.execute();
 
-            if (success) {
-                model.setUpdatedAt(now);
-            }
+            model.setUpdatedAt(now);
 
+            conn.close();
         } catch (IOException | SQLException e) {
             return success;
         }
@@ -125,7 +121,7 @@ public class HistoryDAO extends DAO {
         try {
             Connection conn = getConnection();
 
-            ResultSet rs = conn.createStatement().executeQuery("select * from history where deletedAt != 'N/A';");
+            ResultSet rs = conn.createStatement().executeQuery("select * from history where deletedAt  = 'null';");
             while (rs.next()) {
                 History h = new History();
                 Account ac = (Account) getDAO("Account").findById(rs.getString("accountId"));
@@ -140,6 +136,7 @@ public class HistoryDAO extends DAO {
 
                 data.put(h.getId(), h);
             }
+            conn.close();
         } catch (SQLException | IOException ex) {
             ex.printStackTrace();
         }
@@ -150,4 +147,105 @@ public class HistoryDAO extends DAO {
         return "H" + data.size();
     }
 
+    @Override
+    public boolean create(ArrayList<Model> m) {
+
+        boolean success = false;
+        try {
+            Connection conn = getConnection();
+            for (int i = 0; i < m.size(); i++) {
+                History model = (History) m.get(i);
+                String sql = "Insert Into History values(?,?,?,?,?,?,?,?)";
+                PreparedStatement p = conn.prepareStatement(sql);
+                int index = 1;
+                String nextId = getNextId();
+                p.setString(index++, nextId);
+                p.setString(index++, model.getCustomer().getId());
+                p.setString(index++, model.getBank().getId());
+                p.setString(index++, model.getAccount().getId());
+                p.setString(index++, model.getAction());
+                p.setString(index++, dateToString(model.getCreatedAt()));
+                p.setString(index++, dateToString(model.getUpdatedAt()));
+                p.setString(index++, dateToString(model.getDeletedAt()));
+
+                success = p.execute();
+
+                model.setId(nextId);
+                data.put(model.getId(), model);
+
+            }
+            conn.close();
+        } catch (IOException | SQLException e) {
+            e.printStackTrace();
+            return success;
+        }
+
+        return success;
+    }
+
+    @Override
+    public boolean delete(ArrayList<Model> m) {
+
+        boolean success = false;
+        try {
+            Connection conn = getConnection();
+            for (int i = 0; i < m.size(); i++) {
+                History model = (History) m.get(i);
+
+                String sql = "update History set deletedAt=? where id=?";
+                PreparedStatement p = conn.prepareStatement(sql);
+                int index = 1;
+                Date now = new Date();
+                p.setString(index++, dateToString(now));
+                p.setString(index++, model.getId());
+
+                success = p.execute();
+
+                model.setDeletedAt(now);
+
+            }
+            conn.close();
+        } catch (IOException | SQLException e) {
+            return success;
+        }
+        return success;
+    }
+
+    @Override
+    public boolean update(ArrayList<Model> m) {
+
+        boolean success = false;
+        try {
+            Connection conn = getConnection();
+            for (int i = 0; i < m.size(); i++) {
+                History model = (History) m.get(i);
+                String sql = "update History set customerId=?,bankId=?,accountId=?,action=?,createdAt=?,updatedAt=?,deletedAt=? where id=?";
+                PreparedStatement p = conn.prepareStatement(sql);
+                int index = 1;
+                Date now = new Date();
+                p.setString(index++, model.getCustomer().getId());
+                p.setString(index++, model.getBank().getId());
+                p.setString(index++, model.getAccount().getId());
+                p.setString(index++, model.getAction());
+                p.setString(index++, dateToString(model.getCreatedAt()));
+                p.setString(index++, dateToString(now));
+                p.setString(index++, dateToString(model.getDeletedAt()));
+
+                p.setString(index++, model.getId());
+                success = p.execute();
+
+                model.setUpdatedAt(now);
+
+            }
+            conn.close();
+        } catch (IOException | SQLException e) {
+            return success;
+        }
+        return success;
+    }
+
+    @Override
+    public History findById(String Id) {
+        return (History) data.get(Id);
+    }
 }

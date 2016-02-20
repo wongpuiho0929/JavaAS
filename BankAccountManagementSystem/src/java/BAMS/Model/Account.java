@@ -14,8 +14,8 @@ public class Account extends Model {
     }
 
     public Account(Customer c, Bank b, String accountNo, double balance) {
-        setBank(b);
-        setCustomer(c);
+        this.bank = b;
+        this.customer = c;
         setAccountNo(accountNo);
         this.balance = balance;
     }

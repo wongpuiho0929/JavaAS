@@ -71,14 +71,15 @@ public abstract class DAO {
     }
 
     public abstract boolean create(Model m);
+    public abstract boolean create(ArrayList<Model> m);
 
     public abstract boolean delete(Model m);
+    public abstract boolean delete(ArrayList<Model>  m);
 
     public abstract boolean update(Model m);
+    public abstract boolean update(ArrayList<Model>  m);
 
-    public Model findById(String Id) {
-        return data.get(Id);
-    }
+    public abstract Model findById(String Id);
 
     public String printCount() {
         return table + ": " + getCount();
@@ -142,6 +143,7 @@ public abstract class DAO {
     public void refresh() {
         clearData();
         getData();
+        System.out.println(getTableName()+" finish refresh.");
     }
 
     public synchronized static void createTable() {
@@ -222,6 +224,11 @@ public abstract class DAO {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public ArrayList<Model> getDataList() {
+        return new ArrayList(data.values());
+
     }
 
 }

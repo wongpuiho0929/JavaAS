@@ -10,15 +10,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class CustomerDAO extends DAO {
 
     public CustomerDAO() {
         data = new Hashtable<>();
         table = "Customer";
-        getData();
     }
 
     @Override
@@ -43,12 +40,12 @@ public class CustomerDAO extends DAO {
 
             success = p.execute();
 
-            if (success) {
-                c.setId(nextId);
-                data.put(c.getId(), c);
-            }
-
+            c.setId(nextId);
+            data.put(c.getId(), c);
+            System.out.println("Customer added.");
+            conn.close();
         } catch (IOException | SQLException e) {
+            e.printStackTrace();
             return success;
         }
         return success;
@@ -70,10 +67,9 @@ public class CustomerDAO extends DAO {
 
             success = p.execute();
 
-            if (success) {
-                c.setDeletedAt(now);
-            }
+            c.setDeletedAt(now);
 
+            conn.close();
         } catch (IOException | SQLException e) {
             return success;
         }
@@ -101,10 +97,9 @@ public class CustomerDAO extends DAO {
             p.setString(index++, c.getId());
             success = p.execute();
 
-            if (success) {
-                c.setUpdatedAt(now);
-            }
+            c.setUpdatedAt(now);
 
+            conn.close();
         } catch (IOException | SQLException e) {
             return success;
         }
@@ -120,7 +115,7 @@ public class CustomerDAO extends DAO {
     protected void getData() {
         try {
             Connection conn = getConnection();
-            ResultSet rs = conn.createStatement().executeQuery("select * from customer where deletedAt != 'N/A';");
+            ResultSet rs = conn.createStatement().executeQuery("select * from customer where deletedAt = 'null';");
             while (rs.next()) {
                 Customer c = new Customer();
                 c.setId(rs.getString("id"));
@@ -134,9 +129,113 @@ public class CustomerDAO extends DAO {
                 c.setDeletedAt(stringToDate(rs.getString("deletedAt")));
                 data.put(c.getId(), c);
             }
+            conn.close();
         } catch (SQLException | IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public boolean create(ArrayList<Model> m) {
+
+        boolean success = false;
+        try {
+            Connection conn = getConnection();
+            for (int i = 0; i < m.size(); i++) {
+                Customer c = (Customer) m.get(i);
+                String sql = "Insert Into Customer values(?,?,?,?,?,?,?,?,?)";
+                PreparedStatement p = conn.prepareStatement(sql);
+                int index = 1;
+                String nextId = getNextId();
+                p.setString(index++, nextId);
+                p.setString(index++, c.getName());
+                p.setString(index++, c.getUsername());
+                p.setString(index++, c.getPassword());
+                p.setString(index++, c.getTel());
+                p.setString(index++, c.getAddress());
+                p.setString(index++, dateToString(c.getCreatedAt()));
+                p.setString(index++, dateToString(c.getUpdatedAt()));
+                p.setString(index++, dateToString(c.getDeletedAt()));
+
+                success = p.execute();
+
+                c.setId(nextId);
+                data.put(c.getId(), c);
+                System.out.println("Customer added.");
+            }
+            conn.close();
+        } catch (IOException | SQLException e) {
+            e.printStackTrace();
+            return success;
+        }
+
+        return success;
+    }
+
+    @Override
+    public boolean delete(ArrayList<Model> m) {
+
+        boolean success = false;
+        try {
+            Connection conn = getConnection();
+            for (int i = 0; i < m.size(); i++) {
+                Customer c = (Customer) m.get(i);
+
+                String sql = "update Customer set deletedAt=? where id=?";
+                PreparedStatement p = conn.prepareStatement(sql);
+                int index = 1;
+                Date now = new Date();
+                p.setString(index++, dateToString(now));
+                p.setString(index++, c.getId());
+
+                success = p.execute();
+
+                c.setDeletedAt(now);
+
+            }
+            conn.close();
+        } catch (IOException | SQLException e) {
+            return success;
+        }
+        return success;
+    }
+
+    @Override
+    public boolean update(ArrayList<Model> m) {
+
+        boolean success = false;
+        try {
+            Connection conn = getConnection();
+            for (int i = 0; i < m.size(); i++) {
+                Customer c = (Customer) m.get(i);
+                String sql = "update Customer set name=?,username=?,password=?,tel=?,address=?,createdAt=?,updatedAt=?,deletedAt=? where id=?";
+                PreparedStatement p = conn.prepareStatement(sql);
+                int index = 1;
+                Date now = new Date();
+                p.setString(index++, c.getName());
+                p.setString(index++, c.getUsername());
+                p.setString(index++, c.getPassword());
+                p.setString(index++, c.getTel());
+                p.setString(index++, c.getAddress());
+                p.setString(index++, dateToString(c.getCreatedAt()));
+                p.setString(index++, dateToString(now));
+                p.setString(index++, dateToString(c.getDeletedAt()));
+                p.setString(index++, c.getId());
+                success = p.execute();
+
+                c.setUpdatedAt(now);
+
+            }
+            conn.close();
+        } catch (IOException | SQLException e) {
+            return success;
+        }
+        return success;
+    }
+
+    @Override
+    public Customer findById(String Id) {
+        return (Customer) data.get(Id);
     }
 
 }

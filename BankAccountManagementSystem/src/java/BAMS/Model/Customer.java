@@ -22,6 +22,10 @@ public class Customer extends Model {
         return accounts;
     }
     
+    public ArrayList<Model> getAccountList(){
+        return new ArrayList<>(accounts.values());
+    }
+    
     public void setAccounts(Hashtable<String,Model> accounts) {
         this.accounts = accounts;
     }
