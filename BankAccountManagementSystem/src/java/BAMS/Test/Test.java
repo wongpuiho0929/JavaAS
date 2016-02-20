@@ -13,9 +13,13 @@ public class Test {
     public static void main(String[] args) {
         try {
             setting();
-            createTable();
-            createData();
+//            createTable();
+//            createData();
             refreshData();
+            
+            Customer c = (Customer)((CustomerDAO)customerDB).findByUsername("Cust0");
+            System.out.println("username:"+c.getUsername());
+            System.out.println("password:"+c.getPassword());
 //            Bank b = (Bank) bankDB.findById("B1");
 //            bankDB.delete(b);
 //            printTablesSize();
@@ -33,19 +37,19 @@ public class Test {
         }
     }
 
-    private static void createTable() {
+    private static void createTable()  throws Exception{
         DAO.rebuild();
         refreshData();
     }
 
-    private static void refreshData() {
+    private static void refreshData() throws Exception {
         for (DAO d : DAOlist) {
             d.refresh();
             printTablesSize();
         }
     }
 
-    private static void createData() {
+    private static void createData()  throws Exception{
 
         Bank b = new Bank();
         b.setName("HangSeng Bank");
@@ -84,11 +88,11 @@ public class Test {
         System.out.println("Data Create Finish");
     }
 
-    private static void printTablesSize() {
+    private static void printTablesSize() throws Exception {
         System.out.println("\n" + DAO.printAllCount());
     }
 
-    private static void setting() {
+    private static void setting() throws Exception {
         String url = "jdbc:mysql://localhost:3306/BAMS_db";
         String user = "root";
         String pwd = "";

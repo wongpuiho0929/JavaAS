@@ -22,7 +22,7 @@ public abstract class DAO {
     protected SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     protected static Hashtable<String, DAO> DAObyName = new Hashtable<>();
     protected Hashtable<String, Model> data;
-
+        
     public static void setting(String dburl, String dbUser, String dbPassword) {
         DAO.dbPassword = dbPassword;
         DAO.dbUser = dbUser;
@@ -32,6 +32,13 @@ public abstract class DAO {
         DAObyName.put("ExchangeRate", new ExchangeRateDAO());
         DAObyName.put("Account", new AccountDAO());
         DAObyName.put("History", new HistoryDAO());
+        
+        DAObyName.get("Bank").refresh();
+        DAObyName.get("Customer").refresh();
+        DAObyName.get("ExchangeRate").refresh();
+        DAObyName.get("Account").refresh();
+        DAObyName.get("History").refresh();
+        
     }
 
     public static Hashtable<String, DAO> getDAOs() {
@@ -70,14 +77,14 @@ public abstract class DAO {
         return DriverManager.getConnection(dburl, dbUser, dbPassword);
     }
 
-    public abstract boolean create(Model m);
-    public abstract boolean create(ArrayList<Model> m);
+    public abstract boolean create(Model m) throws Exception;
+    public abstract boolean create(ArrayList<Model> m) throws Exception;
 
-    public abstract boolean delete(Model m);
-    public abstract boolean delete(ArrayList<Model>  m);
+    public abstract boolean delete(Model m) throws Exception;
+    public abstract boolean delete(ArrayList<Model>  m) throws Exception;
 
-    public abstract boolean update(Model m);
-    public abstract boolean update(ArrayList<Model>  m);
+    public abstract boolean update(Model m) throws Exception;
+    public abstract boolean update(ArrayList<Model>  m) throws Exception;
 
     public abstract Model findById(String Id);
 

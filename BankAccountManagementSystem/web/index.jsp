@@ -12,8 +12,23 @@
         <title>JSP Page</title>
         <script src="jquery/jquery-1.12.0.js" ></script>
         <script src="jquery/Class.js" ></script>
+        <script>
+            $(document).ready(function(){
+                $("button").click(function(){
+                    $.post("/BankAccountManagementSystem/login",{
+                        "username":$("#username").val(),
+                        "password":$("#password").val()
+                    }).done(function(data){
+                        alert(JSON.parse(data).login);
+                    });
+                });
+                
+            });
+        </script>
     </head>
     <body>
-        <h1>Hello World!</h1>
+        <input type="text" id="username" />
+        <input type="password" id="password"/>
+        <button>login</button>
     </body>
 </html>

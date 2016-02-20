@@ -1,5 +1,6 @@
 package BAMS.DAO;
 
+import BAMS.Exception.SameUsernameException;
 import BAMS.Model.Customer;
 import BAMS.Model.Model;
 import java.io.IOException;
@@ -13,14 +14,21 @@ import java.util.Hashtable;
 
 public class CustomerDAO extends DAO {
 
+    private Hashtable<String, Customer> dataByUsername;
+
     public CustomerDAO() {
         data = new Hashtable<>();
+        dataByUsername = new Hashtable<>();
         table = "Customer";
     }
 
     @Override
-    public synchronized boolean create(Model m) {
+    public synchronized boolean create(Model m) throws Exception {
         Customer c = (Customer) m;
+        if (dataByUsername.containsKey(c.getUsername())) {
+            throw new SameUsernameException(c.getUsername());
+        }
+
         boolean success = false;
         try {
             Connection conn = getConnection();
@@ -42,6 +50,7 @@ public class CustomerDAO extends DAO {
 
             c.setId(nextId);
             data.put(c.getId(), c);
+            dataByUsername.put(c.getUsername(), c);
             System.out.println("Customer added.");
             conn.close();
         } catch (IOException | SQLException e) {
@@ -128,6 +137,7 @@ public class CustomerDAO extends DAO {
                 c.setUpdatedAt(stringToDate(rs.getString("updatedAt")));
                 c.setDeletedAt(stringToDate(rs.getString("deletedAt")));
                 data.put(c.getId(), c);
+                dataByUsername.put(c.getUsername(), c);
             }
             conn.close();
         } catch (SQLException | IOException e) {
@@ -136,13 +146,16 @@ public class CustomerDAO extends DAO {
     }
 
     @Override
-    public boolean create(ArrayList<Model> m) {
+    public boolean create(ArrayList<Model> m) throws Exception{
 
         boolean success = false;
+
         try {
             Connection conn = getConnection();
             for (int i = 0; i < m.size(); i++) {
                 Customer c = (Customer) m.get(i);
+                if(dataByUsername.containsKey(c.getUsername()))
+                    throw new SameUsernameException(c.getUsername());
                 String sql = "Insert Into Customer values(?,?,?,?,?,?,?,?,?)";
                 PreparedStatement p = conn.prepareStatement(sql);
                 int index = 1;
@@ -161,6 +174,7 @@ public class CustomerDAO extends DAO {
 
                 c.setId(nextId);
                 data.put(c.getId(), c);
+                dataByUsername.put(c.getUsername(), c);
                 System.out.println("Customer added.");
             }
             conn.close();
@@ -191,7 +205,8 @@ public class CustomerDAO extends DAO {
                 success = p.execute();
 
                 c.setDeletedAt(now);
-
+                data.remove(c.getId());
+                dataByUsername.remove(c.getUsername());
             }
             conn.close();
         } catch (IOException | SQLException e) {
@@ -236,6 +251,14 @@ public class CustomerDAO extends DAO {
     @Override
     public Customer findById(String Id) {
         return (Customer) data.get(Id);
+    }
+
+    public boolean isUsernameExist(String username) {
+        return dataByUsername.containsKey(username);
+    }
+
+    public Customer findByUsername(String username) {
+        return (Customer) dataByUsername.get(username);
     }
 
 }

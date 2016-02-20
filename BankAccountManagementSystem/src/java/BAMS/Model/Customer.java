@@ -6,34 +6,33 @@ import java.util.Hashtable;
 
 public class Customer extends Model {
 
-    protected Hashtable<String,Model> accounts = new Hashtable<String,Model>();
+    protected Hashtable<String, Model> accounts = new Hashtable<String, Model>();
     private String name, username, password, tel, address;
 
-    public Customer(){
+    public Customer() {
     }
-    
+
     public Customer(ArrayList<Account> list) {
         for (Account ac : list) {
-            this.accounts.put(ac.getId(),ac);
+            this.accounts.put(ac.getId(), ac);
         }
     }
 
-    public Hashtable<String,Model> getAccounts() {
+    public Hashtable<String, Model> getAccounts() {
         return accounts;
     }
-    
-    public ArrayList<Model> getAccountList(){
+
+    public ArrayList<Model> getAccountList() {
         return new ArrayList<>(accounts.values());
     }
-    
-    public void setAccounts(Hashtable<String,Model> accounts) {
+
+    public void setAccounts(Hashtable<String, Model> accounts) {
         this.accounts = accounts;
     }
-    
-    public void addAccount(Account a){
+
+    public void addAccount(Account a) {
         accounts.put(a.accountNo, a);
     }
-    
 
     public String getName() {
         return name;
@@ -78,4 +77,7 @@ public class Customer extends Model {
         this.address = address;
     }
 
+    public boolean checkPassword(String pwd) {
+        return pwd.equals(this.getPassword());
+    }
 }
