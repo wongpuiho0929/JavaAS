@@ -156,9 +156,9 @@ public abstract class DAO {
                     + "  `password` varchar(50) DEFAULT NULL,"
                     + "  `tel` varchar(8) DEFAULT NULL,"
                     + "  `address` varchar(50) DEFAULT NULL,"
-                    + "  `createdAt` char(19) DEFAULT 'N/A',"
-                    + "  `updatedAt` char(19) DEFAULT 'N/A',"
-                    + "  `deletedAt` char(19) DEFAULT 'N/A',"
+                    + "  `createdAt` char(19) DEFAULT NULL,"
+                    + "  `updatedAt` char(19) DEFAULT NULL,"
+                    + "  `deletedAt` char(19) DEFAULT NULL,"
                     + "  PRIMARY KEY (`id`)"
                     + ");";
             stmnt.execute(sql);
@@ -169,9 +169,9 @@ public abstract class DAO {
                     + "  `name` varchar(30) DEFAULT NULL,"
                     + "  `tel` varchar(8) DEFAULT NULL,"
                     + "  `address` varchar(50) DEFAULT NULL,"
-                    + "  `createdAt` char(19) DEFAULT 'N/A',"
-                    + "  `updatedAt` char(19) DEFAULT 'N/A',"
-                    + "  `deletedAt` char(19) DEFAULT 'N/A',"
+                    + "  `createdAt` char(19) DEFAULT NULL,"
+                    + "  `updatedAt` char(19) DEFAULT NULL,"
+                    + "  `deletedAt` char(19) DEFAULT NULL,"
                     + "  PRIMARY KEY (`id`)"
                     + ");";
             stmnt.execute(sql);
@@ -179,13 +179,13 @@ public abstract class DAO {
             sql
                     = "CREATE TABLE `Account` ("
                     + "  `id` varchar(30) NOT NULL,"
-                    + "  `customerId` varchar(30) NOT NULL,"
-                    + "  `bankId` varchar(30) NOT NULL,"
-                    + "  `accountNo` varchar(30) NOT NULL,"
+                    + "  `customerId` varchar(30) DEFAULT NULL,"
+                    + "  `bankId` varchar(30) DEFAULT NULL,"
+                    + "  `accountNo` varchar(30) DEFAULT NULL,"
                     + "  `balance` int DEFAULT 0,"
-                    + "  `createdAt` char(19) DEFAULT 'N/A',"
-                    + "  `updatedAt` char(19) DEFAULT 'N/A',"
-                    + "  `deletedAt` char(19) DEFAULT 'N/A',"
+                    + "  `createdAt` char(19) DEFAULT NULL,"
+                    + "  `updatedAt` char(19) DEFAULT NULL,"
+                    + "  `deletedAt` char(19) DEFAULT NULL,"
                     + "  PRIMARY KEY (`id`)"
                     + ");";
             stmnt.execute(sql);
@@ -193,13 +193,13 @@ public abstract class DAO {
             sql
                     = "CREATE TABLE `History` ("
                     + "  `id` varchar(30) NOT NULL,"
-                    + "  `customerId` varchar(30) NOT NULL,"
-                    + "  `bankId` varchar(30) NOT NULL,"
-                    + "  `accountId` varchar(30) NOT NULL,"
-                    + "  `action` varchar(200) NOT NULL,"
-                    + "  `createdAt` char(19) DEFAULT 'N/A',"
-                    + "  `updatedAt` char(19) DEFAULT 'N/A',"
-                    + "  `deletedAt` char(19) DEFAULT 'N/A',"
+                    + "  `customerId` varchar(30) DEFAULT NULL,"
+                    + "  `bankId` varchar(30) DEFAULT NULL,"
+                    + "  `accountId` varchar(30) DEFAULT NULL,"
+                    + "  `action` varchar(200) DEFAULT NULL,"
+                    + "  `createdAt` char(19) DEFAULT NULL,"
+                    + "  `updatedAt` char(19) DEFAULT NULL,"
+                    + "  `deletedAt` char(19) DEFAULT NULL,"
                     + "  PRIMARY KEY (`id`)"
                     + ");";
             stmnt.execute(sql);
@@ -207,12 +207,12 @@ public abstract class DAO {
             sql
                     = "CREATE TABLE `ExchangeRate` ("
                     + "  `id` varchar(30) NOT NULL,"
-                    + "  `currency1` varchar(30) NOT NULL,"
-                    + "  `currency2` varchar(30) NOT NULL,"
-                    + "  `rate` int NOT NULL,"
-                    + "  `createdAt` char(19) DEFAULT 'N/A',"
-                    + "  `updatedAt` char(19) DEFAULT 'N/A',"
-                    + "  `deletedAt` char(19) DEFAULT 'N/A',"
+                    + "  `currency1` varchar(30) DEFAULT NULL,"
+                    + "  `currency2` varchar(30) DEFAULT NULL,"
+                    + "  `rate` int DEFAULT NULL,"
+                    + "  `createdAt` char(19) DEFAULT NULL,"
+                    + "  `updatedAt` char(19) DEFAULT NULL,"
+                    + "  `deletedAt` char(19) DEFAULT NULL,"
                     + "  PRIMARY KEY (`id`)"
                     + ");";
             stmnt.execute(sql);
