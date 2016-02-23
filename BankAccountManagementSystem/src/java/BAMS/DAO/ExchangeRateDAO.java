@@ -6,6 +6,7 @@
 package BAMS.DAO;
 
 import static BAMS.DAO.DAO.getConnection;
+import BAMS.Model.Currency;
 import BAMS.Model.ExchangeRate;
 import BAMS.Model.Model;
 import java.io.IOException;
@@ -15,6 +16,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.Hashtable;
 
 /**
@@ -22,6 +24,8 @@ import java.util.Hashtable;
  * @author User
  */
 public class ExchangeRateDAO extends DAO {
+
+    private Hashtable<String, ExchangeRate> dataByName = new Hashtable<>();
 
     public ExchangeRateDAO() {
         table = "ExchangeRate";
@@ -33,14 +37,14 @@ public class ExchangeRateDAO extends DAO {
         ExchangeRate model = (ExchangeRate) m;
         boolean success = false;
         try {
-            Connection conn = getConnection();
+
             String sql = "Insert Into ExchangeRate values(?,?,?,?,?,?,?)";
             PreparedStatement p = conn.prepareStatement(sql);
             int index = 1;
             String nextId = getNextId();
             p.setString(index++, nextId);
-            p.setString(index++, model.getCurrency1());
-            p.setString(index++, model.getCurrency2());
+            p.setString(index++, model.getCurrency1().getId());
+            p.setString(index++, model.getCurrency2().getId());
             p.setDouble(index++, model.getRate());
             p.setString(index++, dateToString(model.getCreatedAt()));
             p.setString(index++, dateToString(model.getUpdatedAt()));
@@ -51,36 +55,11 @@ public class ExchangeRateDAO extends DAO {
             model.setId(nextId);
             data.put(model.getId(), model);
 
-            conn.close();
-        } catch (IOException | SQLException e) {
-            return success;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            success = false;
         }
 
-        return success;
-    }
-
-    @Override
-    public synchronized boolean delete(Model m) {
-
-        ExchangeRate model = (ExchangeRate) m;
-        boolean success = false;
-        try {
-            Connection conn = getConnection();
-            String sql = "update ExchangeRate set deletedAt=? where id=?";
-            PreparedStatement p = conn.prepareStatement(sql);
-            int index = 1;
-            Date now = new Date();
-            p.setString(index++, dateToString(now));
-            p.setString(index++, model.getId());
-
-            success = p.execute();
-
-            model.setDeletedAt(now);
-
-            conn.close();
-        } catch (IOException | SQLException e) {
-            return success;
-        }
         return success;
     }
 
@@ -89,13 +68,13 @@ public class ExchangeRateDAO extends DAO {
         ExchangeRate model = (ExchangeRate) m;
         boolean success = false;
         try {
-            Connection conn = getConnection();
-            String sql = "update ExchangeRate set currency1=?,currency2=?,rate=?,createdAt=?,updatedAt=?,deletedAt=? where id=?";
+
+            String sql = "update ExchangeRate set currency1Id=?,currency2Id=?,rate=?,createdAt=?,updatedAt=?,deletedAt=? where id=?";
             PreparedStatement p = conn.prepareStatement(sql);
             int index = 1;
             Date now = new Date();
-            p.setString(index++, model.getCurrency1());
-            p.setString(index++, model.getCurrency2());
+            p.setString(index++, model.getCurrency1().getId());
+            p.setString(index++, model.getCurrency2().getId());
             p.setDouble(index++, model.getRate());
             p.setString(index++, dateToString(model.getCreatedAt()));
             p.setString(index++, dateToString(now));
@@ -105,9 +84,9 @@ public class ExchangeRateDAO extends DAO {
 
             model.setUpdatedAt(now);
 
-            conn.close();
-        } catch (IOException | SQLException e) {
-            return success;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            success = false;
         }
         return success;
     }
@@ -115,22 +94,27 @@ public class ExchangeRateDAO extends DAO {
     @Override
     protected void getData() {
         try {
-            Connection conn = getConnection();
-
+            CurrencyDAO currencyDAO = (CurrencyDAO) DAO.getDAO("Currency");
             ResultSet rs = conn.createStatement().executeQuery("select * from exchangeRate where deletedAt = 'null';");
             while (rs.next()) {
                 ExchangeRate er = new ExchangeRate();
+                Currency c1 = (Currency) currencyDAO.findById(rs.getString("currency1Id"));
+                Currency c2 = (Currency) currencyDAO.findById(rs.getString("currency2Id"));
+
                 er.setId(rs.getString("id"));
-                er.setCurrency1(rs.getString("currency1"));
-                er.setCurrency2(rs.getString("currency2"));
+                er.setCurrency1(c1);
+                er.setCurrency2(c2);
                 er.setRate(rs.getDouble("rate"));
                 er.setCreatedAt(stringToDate(rs.getString("createdAt")));
                 er.setUpdatedAt(stringToDate(rs.getString("updatedAt")));
                 er.setDeletedAt(stringToDate(rs.getString("deletedAt")));
                 data.put(er.getId(), er);
+                dataByName.put(er.getCurrency1().getName() + er.getCurrency2().getName(), er);
+                c1.addExchangeRate(er);
+                c2.addExchangeRate(er);
             }
-            conn.close();
-        } catch (SQLException | IOException ex) {
+
+        } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }
@@ -141,102 +125,12 @@ public class ExchangeRateDAO extends DAO {
     }
 
     @Override
-    public boolean create(ArrayList<Model> m) {
-
-        boolean success = false;
-        try {
-            Connection conn = getConnection();
-            for (int i = 0; i < m.size(); i++) {
-                ExchangeRate model = (ExchangeRate) m.get(i);
-                String sql = "Insert Into ExchangeRate values(?,?,?,?,?,?,?)";
-                PreparedStatement p = conn.prepareStatement(sql);
-                int index = 1;
-                String nextId = getNextId();
-                p.setString(index++, nextId);
-                p.setString(index++, model.getCurrency1());
-                p.setString(index++, model.getCurrency2());
-                p.setDouble(index++, model.getRate());
-                p.setString(index++, dateToString(model.getCreatedAt()));
-                p.setString(index++, dateToString(model.getUpdatedAt()));
-                p.setString(index++, dateToString(model.getDeletedAt()));
-
-                success = p.execute();
-
-                model.setId(nextId);
-                data.put(model.getId(), model);
-
-            }
-            conn.close();
-        } catch (IOException | SQLException e) {
-            e.printStackTrace();
-            return success;
-        }
-
-        return success;
-    }
-
-    @Override
-    public boolean delete(ArrayList<Model> m) {
-
-        boolean success = false;
-        try {
-            Connection conn = getConnection();
-            for (int i = 0; i < m.size(); i++) {
-                ExchangeRate model = (ExchangeRate) m.get(i);
-
-                String sql = "update ExchangeRate set deletedAt=? where id=?";
-                PreparedStatement p = conn.prepareStatement(sql);
-                int index = 1;
-                Date now = new Date();
-                p.setString(index++, dateToString(now));
-                p.setString(index++, model.getId());
-
-                success = p.execute();
-
-                model.setDeletedAt(now);
-
-            }
-            conn.close();
-        } catch (IOException | SQLException e) {
-            return success;
-        }
-        return success;
-    }
-
-    @Override
-    public boolean update(ArrayList<Model> m) {
-
-        boolean success = false;
-        try {
-            Connection conn = getConnection();
-            for (int i = 0; i < m.size(); i++) {
-                ExchangeRate model = (ExchangeRate) m.get(i);
-                String sql = "update ExchangeRate set currency1=?,currency2=?,rate=?,createdAt=?,updatedAt=?,deletedAt=? where id=?";
-                PreparedStatement p = conn.prepareStatement(sql);
-                int index = 1;
-                Date now = new Date();
-                p.setString(index++, model.getCurrency1());
-                p.setString(index++, model.getCurrency2());
-                p.setDouble(index++, model.getRate());
-                p.setString(index++, dateToString(model.getCreatedAt()));
-                p.setString(index++, dateToString(now));
-                p.setString(index++, dateToString(model.getDeletedAt()));
-                p.setString(index++, model.getId());
-                success = p.execute();
-
-                model.setUpdatedAt(now);
-
-            }
-            conn.close();
-        } catch (IOException | SQLException e) {
-            return success;
-        }
-        return success;
-    }
-
-    @Override
     public ExchangeRate findById(String Id) {
         return (ExchangeRate) data.get(Id);
+    }
+
+    public ArrayList<ExchangeRate> findByCurrency(Currency currency) {
+        return currency.getExchangeRateList();
     }
 
 }

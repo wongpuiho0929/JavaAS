@@ -4,6 +4,7 @@ import BAMS.Model.Model;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.ParseException;
@@ -22,23 +23,30 @@ public abstract class DAO {
     protected SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     protected static Hashtable<String, DAO> DAObyName = new Hashtable<>();
     protected Hashtable<String, Model> data;
-        
+    protected static Connection conn;
+
     public static void setting(String dburl, String dbUser, String dbPassword) {
-        DAO.dbPassword = dbPassword;
-        DAO.dbUser = dbUser;
-        DAO.dburl = dburl;
-        DAObyName.put("Bank", new BankDAO());
-        DAObyName.put("Customer", new CustomerDAO());
-        DAObyName.put("ExchangeRate", new ExchangeRateDAO());
-        DAObyName.put("Account", new AccountDAO());
-        DAObyName.put("History", new HistoryDAO());
-        
-        DAObyName.get("Bank").refresh();
-        DAObyName.get("Customer").refresh();
-        DAObyName.get("ExchangeRate").refresh();
-        DAObyName.get("Account").refresh();
-        DAObyName.get("History").refresh();
-        
+        try {
+            DAO.dbPassword = dbPassword;
+            DAO.dbUser = dbUser;
+            DAO.dburl = dburl;
+
+            conn = getConnection();
+
+            DAObyName.put("Bank", new BankDAO());
+            DAObyName.put("Customer", new CustomerDAO());
+            DAObyName.put("ExchangeRate", new ExchangeRateDAO());
+            DAObyName.put("Account", new AccountDAO());
+            DAObyName.put("History", new HistoryDAO());
+
+            DAObyName.get("Bank").refresh();
+            DAObyName.get("Customer").refresh();
+            DAObyName.get("ExchangeRate").refresh();
+            DAObyName.get("Account").refresh();
+            DAObyName.get("History").refresh();
+        } catch (IOException | SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public static Hashtable<String, DAO> getDAOs() {
@@ -78,13 +86,58 @@ public abstract class DAO {
     }
 
     public abstract boolean create(Model m) throws Exception;
-    public abstract boolean create(ArrayList<Model> m) throws Exception;
 
-    public abstract boolean delete(Model m) throws Exception;
-    public abstract boolean delete(ArrayList<Model>  m) throws Exception;
+    public boolean create(ArrayList<Model> m) throws Exception{
+        boolean success = true;
+        for(Model model : m)
+            if(create(model) == false)
+                success = false;
+        
+        return success;
+    }
+
+    public boolean delete(Model m) throws Exception{
+        boolean success = false;
+        try {
+            
+            String sql = "update "+ this.table +" set deletedAt=? where id=?";
+            PreparedStatement p = conn.prepareStatement(sql);
+            int index = 1;
+            Date now = new Date();
+            p.setString(index++, dateToString(now));
+            p.setString(index++, m.getId());
+
+            success = p.execute();
+
+            m.setDeletedAt(now);
+
+            
+        } catch (SQLException e) {
+            success = false;
+            e.printStackTrace();
+        }
+        return success;
+    }
+
+    public boolean delete(ArrayList<Model> m) throws Exception{
+        boolean success = true;
+        for(Model model : m)
+            if(delete(model) == false)
+                success = false;
+        
+        return success;
+    }
 
     public abstract boolean update(Model m) throws Exception;
-    public abstract boolean update(ArrayList<Model>  m) throws Exception;
+
+    public boolean update(ArrayList<Model> m) throws Exception{
+        boolean success = true;
+        for(Model model : m)
+            if(update(model) == false)
+                success = false;
+        
+        return success;
+    }
 
     public abstract Model findById(String Id);
 
@@ -122,6 +175,7 @@ public abstract class DAO {
         dropTable("Bank");
         dropTable("History");
         dropTable("ExchangeRate");
+        dropTable("Currency");
 
         System.out.println("Drop Finish");
     }
@@ -150,7 +204,7 @@ public abstract class DAO {
     public void refresh() {
         clearData();
         getData();
-        System.out.println(getTableName()+" finish refresh.");
+        System.out.println(getTableName() + " finish refresh.");
     }
 
     public synchronized static void createTable() {
@@ -216,9 +270,20 @@ public abstract class DAO {
             sql
                     = "CREATE TABLE `ExchangeRate` ("
                     + "  `id` varchar(30) NOT NULL,"
-                    + "  `currency1` varchar(30) DEFAULT NULL,"
-                    + "  `currency2` varchar(30) DEFAULT NULL,"
+                    + "  `currency1Id` varchar(30) DEFAULT NULL,"
+                    + "  `currency2Id` varchar(30) DEFAULT NULL,"
                     + "  `rate` int DEFAULT NULL,"
+                    + "  `createdAt` char(19) DEFAULT NULL,"
+                    + "  `updatedAt` char(19) DEFAULT NULL,"
+                    + "  `deletedAt` char(19) DEFAULT NULL,"
+                    + "  PRIMARY KEY (`id`)"
+                    + ");";
+            stmnt.execute(sql);
+
+            sql
+                    = "CREATE TABLE `Currency` ("
+                    + "  `id` varchar(30) NOT NULL,"
+                    + "  `name` varchar(30) DEFAULT NULL,"
                     + "  `createdAt` char(19) DEFAULT NULL,"
                     + "  `updatedAt` char(19) DEFAULT NULL,"
                     + "  `deletedAt` char(19) DEFAULT NULL,"
@@ -238,4 +303,9 @@ public abstract class DAO {
 
     }
 
+    protected void finalize() throws Throwable {
+        conn.close();
+        System.out.println("Connection closed.");
+        super.finalize();
+    }
 }

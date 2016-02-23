@@ -1,11 +1,15 @@
 package BAMS.Model;
 
-public class History extends Model{
-    
+import BAMS.DAO.DAO;
+import BAMS.DAO.HistoryDAO;
+
+public class History extends Model {
+
     private Customer customer;
     private Bank bank;
     private Account account;
     private String action;
+    private static HistoryDAO db = ((HistoryDAO) DAO.getDAO("History"));
 
     public History() {
     }
@@ -51,7 +55,14 @@ public class History extends Model{
 
     @Override
     public String toString() {
-        return "History ("+ id + "): " + customer.getName() + "("+customer.getId()+")" + ": account(" + account.getAccountNo() + "): " + action;
+        return "History (" + id + "): " + customer.getName() + "(" + customer.getId() + ")" + ": account(" + account.getAccountNo() + "): " + action;
     }
-    
+
+    public void save() {
+        save(db);
+    }
+
+    public static History findById(String id) {
+        return (History) findById(db, id);
+    }
 }

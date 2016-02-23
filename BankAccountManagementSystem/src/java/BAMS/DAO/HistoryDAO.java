@@ -1,6 +1,6 @@
 /*
  * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
+ * To change this template file, choose Tools Templates
  * and open the template in the editor.
  */
 package BAMS.DAO;
@@ -35,7 +35,7 @@ public class HistoryDAO extends DAO {
         History model = (History) m;
         boolean success = false;
         try {
-            Connection conn = getConnection();
+
             String sql = "Insert Into History values(?,?,?,?,?,?,?,?)";
             PreparedStatement p = conn.prepareStatement(sql);
             int index = 1;
@@ -54,33 +54,7 @@ public class HistoryDAO extends DAO {
             model.setId(nextId);
             data.put(model.getId(), model);
 
-            conn.close();
-        } catch (IOException | SQLException e) {
-            return success;
-        }
-        return success;
-    }
-
-    @Override
-    public synchronized boolean delete(Model m) {
-
-        History model = (History) m;
-        boolean success = false;
-        try {
-            Connection conn = getConnection();
-            String sql = "update History set deletedAt=? where id=?";
-            PreparedStatement p = conn.prepareStatement(sql);
-            int index = 1;
-            Date now = new Date();
-            p.setString(index++, dateToString(now));
-            p.setString(index++, model.getId());
-
-            success = p.execute();
-
-            model.setDeletedAt(now);
-
-            conn.close();
-        } catch (IOException | SQLException e) {
+        } catch (SQLException e) {
             return success;
         }
         return success;
@@ -91,7 +65,7 @@ public class HistoryDAO extends DAO {
         History model = (History) m;
         boolean success = false;
         try {
-            Connection conn = getConnection();
+
             String sql = "update History set customerId=?,bankId=?,accountId=?,action=?,createdAt=?,updatedAt=?,deletedAt=? where id=?";
             PreparedStatement p = conn.prepareStatement(sql);
             int index = 1;
@@ -109,8 +83,7 @@ public class HistoryDAO extends DAO {
 
             model.setUpdatedAt(now);
 
-            conn.close();
-        } catch (IOException | SQLException e) {
+        } catch (SQLException e) {
             return success;
         }
         return success;
@@ -119,7 +92,6 @@ public class HistoryDAO extends DAO {
     @Override
     protected void getData() {
         try {
-            Connection conn = getConnection();
 
             ResultSet rs = conn.createStatement().executeQuery("select * from history where deletedAt  = 'null';");
             while (rs.next()) {
@@ -136,8 +108,8 @@ public class HistoryDAO extends DAO {
 
                 data.put(h.getId(), h);
             }
-            conn.close();
-        } catch (SQLException | IOException ex) {
+
+        } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }
@@ -148,104 +120,8 @@ public class HistoryDAO extends DAO {
     }
 
     @Override
-    public boolean create(ArrayList<Model> m) {
-
-        boolean success = false;
-        try {
-            Connection conn = getConnection();
-            for (int i = 0; i < m.size(); i++) {
-                History model = (History) m.get(i);
-                String sql = "Insert Into History values(?,?,?,?,?,?,?,?)";
-                PreparedStatement p = conn.prepareStatement(sql);
-                int index = 1;
-                String nextId = getNextId();
-                p.setString(index++, nextId);
-                p.setString(index++, model.getCustomer().getId());
-                p.setString(index++, model.getBank().getId());
-                p.setString(index++, model.getAccount().getId());
-                p.setString(index++, model.getAction());
-                p.setString(index++, dateToString(model.getCreatedAt()));
-                p.setString(index++, dateToString(model.getUpdatedAt()));
-                p.setString(index++, dateToString(model.getDeletedAt()));
-
-                success = p.execute();
-
-                model.setId(nextId);
-                data.put(model.getId(), model);
-
-            }
-            conn.close();
-        } catch (IOException | SQLException e) {
-            e.printStackTrace();
-            return success;
-        }
-
-        return success;
-    }
-
-    @Override
-    public boolean delete(ArrayList<Model> m) {
-
-        boolean success = false;
-        try {
-            Connection conn = getConnection();
-            for (int i = 0; i < m.size(); i++) {
-                History model = (History) m.get(i);
-
-                String sql = "update History set deletedAt=? where id=?";
-                PreparedStatement p = conn.prepareStatement(sql);
-                int index = 1;
-                Date now = new Date();
-                p.setString(index++, dateToString(now));
-                p.setString(index++, model.getId());
-
-                success = p.execute();
-
-                model.setDeletedAt(now);
-
-            }
-            conn.close();
-        } catch (IOException | SQLException e) {
-            return success;
-        }
-        return success;
-    }
-
-    @Override
-    public boolean update(ArrayList<Model> m) {
-
-        boolean success = false;
-        try {
-            Connection conn = getConnection();
-            for (int i = 0; i < m.size(); i++) {
-                History model = (History) m.get(i);
-                String sql = "update History set customerId=?,bankId=?,accountId=?,action=?,createdAt=?,updatedAt=?,deletedAt=? where id=?";
-                PreparedStatement p = conn.prepareStatement(sql);
-                int index = 1;
-                Date now = new Date();
-                p.setString(index++, model.getCustomer().getId());
-                p.setString(index++, model.getBank().getId());
-                p.setString(index++, model.getAccount().getId());
-                p.setString(index++, model.getAction());
-                p.setString(index++, dateToString(model.getCreatedAt()));
-                p.setString(index++, dateToString(now));
-                p.setString(index++, dateToString(model.getDeletedAt()));
-
-                p.setString(index++, model.getId());
-                success = p.execute();
-
-                model.setUpdatedAt(now);
-
-            }
-            conn.close();
-        } catch (IOException | SQLException e) {
-            return success;
-        }
-        return success;
-    }
-
-    @Override
     public History findById(String Id) {
         return (History) data.get(Id);
     }
+
 }

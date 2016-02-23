@@ -17,27 +17,12 @@ public class Test {
 //            createData();
             refreshData();
             
-            Customer c = (Customer)((CustomerDAO)customerDB).findByUsername("Cust0");
-            System.out.println("username:"+c.getUsername());
-            System.out.println("password:"+c.getPassword());
-//            Bank b = (Bank) bankDB.findById("B1");
-//            bankDB.delete(b);
-//            printTablesSize();
-//            Account a = (Account) accountDB.findById("A31");
-//            Account a2 = (Account) accountDB.findById("A34");
-//            System.out.println("Account a: balance = " + a.getBalance());
-//            a.setBalance(9999);
-//            accountDB.update(a);
-//            refreshData();
-//            System.out.println("Account a(" + a.getAccountNo() + "): balance = " + a.getBalance());
-//            System.out.println("Account a2(" + a2.getAccountNo() + "): balance = " + a2.getBalance());
-
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private static void createTable()  throws Exception{
+    private static void createTable() throws Exception {
         DAO.rebuild();
         refreshData();
     }
@@ -49,7 +34,7 @@ public class Test {
         }
     }
 
-    private static void createData()  throws Exception{
+    private static void createData() throws Exception {
 
         Bank b = new Bank();
         b.setName("HangSeng Bank");

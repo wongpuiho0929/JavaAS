@@ -9,6 +9,6 @@ package BAMS.Command;
  *
  * @author User
  */
-public enum Command {
+public class Command {
     
 }

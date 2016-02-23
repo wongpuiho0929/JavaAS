@@ -1,5 +1,7 @@
 package BAMS.Model;
 
+import BAMS.DAO.CustomerDAO;
+import BAMS.DAO.DAO;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -8,6 +10,7 @@ public class Customer extends Model {
 
     protected Hashtable<String, Model> accounts = new Hashtable<String, Model>();
     private String name, username, password, tel, address;
+    private static CustomerDAO db = ((CustomerDAO) DAO.getDAO("Customer"));
 
     public Customer() {
     }
@@ -79,5 +82,17 @@ public class Customer extends Model {
 
     public boolean checkPassword(String pwd) {
         return pwd.equals(this.getPassword());
+    }
+
+    public void save() {
+        save(db);
+    }
+
+    public static Customer findByUsername(String username){
+        return db.findByUsername(username);
+    }
+    
+    public static Customer findById(String id) {
+        return (Customer) findById(db, id);
     }
 }

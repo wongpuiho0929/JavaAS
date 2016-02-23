@@ -5,37 +5,41 @@
  */
 package BAMS.Model;
 
+import BAMS.DAO.DAO;
+import BAMS.DAO.ExchangeRateDAO;
+
 /**
  *
  * @author User
  */
-public class ExchangeRate extends Model{
-    
-    private String currency1,currency2;
+public class ExchangeRate extends Model {
+
+    private Currency currency1, currency2;
     private double rate;
+    private static ExchangeRateDAO db = ((ExchangeRateDAO) DAO.getDAO("ExchangeRate"));
 
     public ExchangeRate() {
     }
-    
-    public ExchangeRate(String currency1, String currency2, double rate) {
+
+    public ExchangeRate(Currency currency1, Currency currency2, double rate) {
         this.currency1 = currency1;
         this.currency2 = currency2;
         this.rate = rate;
     }
 
-    public String getCurrency1() {
+    public Currency getCurrency1() {
         return currency1;
     }
 
-    public void setCurrency1(String currency1) {
+    public void setCurrency1(Currency currency1) {
         this.currency1 = currency1;
     }
 
-    public String getCurrency2() {
+    public Currency getCurrency2() {
         return currency2;
     }
 
-    public void setCurrency2(String currency2) {
+    public void setCurrency2(Currency currency2) {
         this.currency2 = currency2;
     }
 
@@ -46,5 +50,12 @@ public class ExchangeRate extends Model{
     public void setRate(double rate) {
         this.rate = rate;
     }
-    
+
+    public void save() {
+        save(db);
+    }
+
+    public static Customer findById(String id) {
+        return (Customer) findById(db, id);
+    }
 }
