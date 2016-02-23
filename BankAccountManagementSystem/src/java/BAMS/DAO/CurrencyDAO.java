@@ -93,7 +93,7 @@ public class CurrencyDAO extends DAO {
 
     @Override
     protected String getNextId() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return "CURR" + data.size();
     }
 
 }
