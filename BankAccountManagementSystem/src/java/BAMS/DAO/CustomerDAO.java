@@ -112,7 +112,7 @@ public class CustomerDAO extends DAO {
     
     public void putCustomerByUsername(User u){
         dataByUsername.put(u.getUsername(), u.getCustomer());
-    
+        System.out.println(u.getCustomer().getId());
     }
 
     @Override

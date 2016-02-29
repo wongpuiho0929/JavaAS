@@ -22,9 +22,11 @@ import java.util.Hashtable;
  */
 public class UserDAO extends DAO {
 
+    private Hashtable<String,User> dataByUsername;
     public UserDAO() {
         this.table = "User";
         data = new Hashtable<>();
+        dataByUsername = new Hashtable<>();
     }
 
     @Override
@@ -34,13 +36,14 @@ public class UserDAO extends DAO {
         boolean success = false;
         try {
 
-            String sql = "Insert Into User values(?,?,?,?,?,?,?)";
+            String sql = "Insert Into User values(?,?,?,?,?,?,?,?)";
             PreparedStatement p = conn.prepareStatement(sql);
             int index = 1;
             String nextId = getNextId();
             p.setString(index++, nextId);
             p.setString(index++, model.getUsername());
             p.setString(index++, model.getPassword());
+            p.setString(index++, model.getType().toString());
             DAO.customerDB.create(model.getCustomer());
             p.setString(index++, model.getCustomer().getId());
             p.setString(index++, dateToString(model.getCreatedAt()));
@@ -48,9 +51,11 @@ public class UserDAO extends DAO {
             p.setString(index++, dateToString(model.getDeletedAt()));
 
             success = p.execute();
-
+            model.getCustomer().setUser(model);
+            DAO.customerDB.putCustomerByUsername(model);
             model.setId(nextId);
             data.put(model.getId(), model);
+            dataByUsername.put(model.getUsername(), model);
 //            System.out.println("User added.");
 
         } catch (SQLException e) {
@@ -115,6 +120,7 @@ public class UserDAO extends DAO {
                 u.setDeletedAt(stringToDate(rs.getString("deletedAt")));
 
                 data.put(u.getId(), u);
+                dataByUsername.put(u.getUsername(), u);
             }
 
         } catch (SQLException ex) {
@@ -122,6 +128,14 @@ public class UserDAO extends DAO {
         }
     }
 
+    public boolean isUsernameExist(String username){
+        return dataByUsername.containsKey(username);
+    }
+    
+    public User findByUsername(String username){
+        return dataByUsername.get(username);
+    }
+    
     @Override
     protected String getNextId() {
         return "U"+data.size();

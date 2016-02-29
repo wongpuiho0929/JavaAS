@@ -52,7 +52,7 @@ public class LoginController extends HttpServlet {
         }
 
         customerDB = (CustomerDAO) this.getServletContext().getAttribute("customerDB");
-
+        
     }
 
     /**
@@ -69,7 +69,7 @@ public class LoginController extends HttpServlet {
         if (doAuthenticate(request, response)) {
             String username = request.getParameter("username");
             HttpSession session = request.getSession(true);
-            session.setAttribute("customer", customerDB.findByUsername(username));
+            session.setAttribute("User", DAO.userDB.findByUsername(username));
             loginSuccess(out);
         } else {
             loginFail(out);
@@ -90,13 +90,13 @@ public class LoginController extends HttpServlet {
         boolean success = false;
 //        System.out.println(password + ',' + username);
 //        System.out.println(customerDB.getCount());
-        Customer c;
+        User u;
         if(username == null || password == null)
             return false;
         
-        if (customerDB.isUsernameExist(username)) {
-            c = customerDB.findByUsername(username);
-            success = c.getUser().checkPassword(password);
+        if (DAO.userDB.isUsernameExist(username)) {
+            u = DAO.userDB.findByUsername(username);
+            success = u.checkPassword(password);
         }
 
         return success;
