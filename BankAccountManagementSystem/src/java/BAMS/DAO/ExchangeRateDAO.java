@@ -94,7 +94,7 @@ public class ExchangeRateDAO extends DAO {
     @Override
     protected void getData() {
         try {
-            CurrencyDAO currencyDAO = (CurrencyDAO) DAO.getDAO("Currency");
+            CurrencyDAO currencyDAO = DAO.currencyDB;
             ResultSet rs = conn.createStatement().executeQuery("select * from exchangeRate where deletedAt = 'null';");
             while (rs.next()) {
                 ExchangeRate er = new ExchangeRate();

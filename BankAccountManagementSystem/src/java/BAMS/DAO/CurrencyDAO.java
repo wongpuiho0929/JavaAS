@@ -12,6 +12,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,6 +22,10 @@ import java.util.logging.Logger;
  */
 public class CurrencyDAO extends DAO {
 
+    public CurrencyDAO(){
+        this.table = "Currency";
+        data = new Hashtable<>();
+    }
     @Override
     public boolean create(Model m) throws Exception {
         try {

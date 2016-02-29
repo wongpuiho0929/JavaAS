@@ -1,21 +1,18 @@
 /*
  * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools Templates
+ * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
 package BAMS.DAO;
 
-import static BAMS.DAO.DAO.getConnection;
-import BAMS.Model.Account;
+import static BAMS.DAO.DAO.conn;
 import BAMS.Model.Customer;
-import BAMS.Model.History;
 import BAMS.Model.Model;
-import java.io.IOException;
-import java.sql.Connection;
+import BAMS.Model.User;
+import BAMS.Model.UserType;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 
@@ -23,28 +20,29 @@ import java.util.Hashtable;
  *
  * @author User
  */
-public class HistoryDAO extends DAO {
+public class UserDAO extends DAO {
 
-    public HistoryDAO() {
-        table = "History";
+    public UserDAO() {
+        this.table = "User";
         data = new Hashtable<>();
     }
 
     @Override
-    public synchronized boolean create(Model m) {
-        History model = (History) m;
+    public boolean create(Model m) throws Exception {
+        User model = (User) m;
+
         boolean success = false;
         try {
 
-            String sql = "Insert Into History values(?,?,?,?,?,?,?,?)";
+            String sql = "Insert Into User values(?,?,?,?,?,?,?)";
             PreparedStatement p = conn.prepareStatement(sql);
             int index = 1;
             String nextId = getNextId();
             p.setString(index++, nextId);
+            p.setString(index++, model.getUsername());
+            p.setString(index++, model.getPassword());
+            DAO.customerDB.create(model.getCustomer());
             p.setString(index++, model.getCustomer().getId());
-            p.setString(index++, model.getBank().getId());
-            p.setString(index++, model.getAccount().getId());
-            p.setString(index++, model.getAction());
             p.setString(index++, dateToString(model.getCreatedAt()));
             p.setString(index++, dateToString(model.getUpdatedAt()));
             p.setString(index++, dateToString(model.getDeletedAt()));
@@ -53,31 +51,31 @@ public class HistoryDAO extends DAO {
 
             model.setId(nextId);
             data.put(model.getId(), model);
+//            System.out.println("User added.");
 
         } catch (SQLException e) {
+            e.printStackTrace();
             return success;
         }
         return success;
     }
 
     @Override
-    public synchronized boolean update(Model m) {
-        History model = (History) m;
+    public boolean update(Model m) throws Exception {
+        User model = (User) m;
         boolean success = false;
         try {
 
-            String sql = "update History set customerId=?,bankId=?,accountId=?,action=?,createdAt=?,updatedAt=?,deletedAt=? where id=?";
+            String sql = "update Customer set username=?,password=?,customerId=?,createdAt=?,updatedAt=?,deletedAt=? where id=?";
             PreparedStatement p = conn.prepareStatement(sql);
             int index = 1;
             Date now = new Date();
+            p.setString(index++, model.getUsername());
+            p.setString(index++, model.getPassword());
             p.setString(index++, model.getCustomer().getId());
-            p.setString(index++, model.getBank().getId());
-            p.setString(index++, model.getAccount().getId());
-            p.setString(index++, model.getAction());
             p.setString(index++, dateToString(model.getCreatedAt()));
             p.setString(index++, dateToString(now));
             p.setString(index++, dateToString(model.getDeletedAt()));
-
             p.setString(index++, model.getId());
             success = p.execute();
 
@@ -90,23 +88,33 @@ public class HistoryDAO extends DAO {
     }
 
     @Override
+    public Model findById(String Id) {
+        return data.get(Id);
+    }
+
+    @Override
     protected void getData() {
         try {
 
-            ResultSet rs = conn.createStatement().executeQuery("select * from history where deletedAt  = 'null';");
+            ResultSet rs = conn.createStatement().executeQuery("select * from user where deletedAt = 'null';");
             while (rs.next()) {
-                History h = new History();
-                Account ac = (Account)DAO.accountDB.findById(rs.getString("accountId"));
-                Customer c = (Customer)DAO.customerDB.findById(rs.getString("customerId"));
-                h.setId(rs.getString("id"));
-                h.setAccount(ac);
-                h.setAction(rs.getString("action"));
-                h.setCustomer(c);
-                h.setCreatedAt(stringToDate(rs.getString("createdAt")));
-                h.setUpdatedAt(stringToDate(rs.getString("updatedAt")));
-                h.setDeletedAt(stringToDate(rs.getString("deletedAt")));
+                User u = new User();
+                Customer c = (Customer) DAO.customerDB.findById(rs.getString("customerId"));
+                u.setId(rs.getString("id"));
+                u.setUsername(rs.getString("username"));
+                u.setPassword(rs.getString("password"));
+                if (c == null) {
+                    u.setType(UserType.Staff);
+                } else {
+                    u.setType(UserType.Customer);
+                    u.setCustomer(c);
+                    DAO.customerDB.putCustomerByUsername(u);
+                }
+                u.setCreatedAt(stringToDate(rs.getString("createdAt")));
+                u.setUpdatedAt(stringToDate(rs.getString("updatedAt")));
+                u.setDeletedAt(stringToDate(rs.getString("deletedAt")));
 
-                data.put(h.getId(), h);
+                data.put(u.getId(), u);
             }
 
         } catch (SQLException ex) {
@@ -116,12 +124,7 @@ public class HistoryDAO extends DAO {
 
     @Override
     protected String getNextId() {
-        return "H" + data.size();
-    }
-
-    @Override
-    public History findById(String Id) {
-        return (History) data.get(Id);
+        return "U"+data.size();
     }
 
 }

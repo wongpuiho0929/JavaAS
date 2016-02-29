@@ -95,8 +95,8 @@ public class AccountDAO extends DAO {
             ResultSet rs = conn.createStatement().executeQuery("select * from account where deletedAt  = 'null';");
             while (rs.next()) {
                 Account ac = new Account();
-                Customer c = (Customer) getDAO("Customer").findById(rs.getString("customerId"));
-                Bank b = (Bank) getDAO("Bank").findById(rs.getString("bankId"));
+                Customer c = (Customer)DAO.customerDB.findById(rs.getString("customerId"));
+                Bank b = (Bank) DAO.bankDB.findById(rs.getString("bankId"));
                 ac.setAccountNo(rs.getString("accountNo"));
                 ac.setId(rs.getString("id"));
                 ac.setBalance(rs.getDouble("balance"));

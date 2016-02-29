@@ -9,7 +9,7 @@ public class History extends Model {
     private Bank bank;
     private Account account;
     private String action;
-    private static HistoryDAO db = ((HistoryDAO) DAO.getDAO("History"));
+    private static HistoryDAO db = DAO.historyDB;
 
     public History() {
     }
@@ -56,10 +56,6 @@ public class History extends Model {
     @Override
     public String toString() {
         return "History (" + id + "): " + customer.getName() + "(" + customer.getId() + ")" + ": account(" + account.getAccountNo() + "): " + action;
-    }
-
-    public void save() {
-        save(db);
     }
 
     public static History findById(String id) {

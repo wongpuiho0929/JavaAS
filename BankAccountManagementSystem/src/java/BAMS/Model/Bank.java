@@ -11,8 +11,8 @@ public class Bank extends Model {
 
     protected String name, tel, address;
     protected Hashtable<String, Model> accounts = new Hashtable<String, Model>();
-    private static BankDAO db = ((BankDAO) DAO.getDAO("Bank"));
-
+    private static BankDAO db = DAO.bankDB;
+            
     public Bank(String name, String tel, String address) {
         this.name = name;
         this.tel = tel;
@@ -63,9 +63,6 @@ public class Bank extends Model {
         this.accounts = accounts;
     }
 
-    public void save() {
-        save(db);
-    }
 
     public static Bank findById(String id) {
         return (Bank) findById(db, id);

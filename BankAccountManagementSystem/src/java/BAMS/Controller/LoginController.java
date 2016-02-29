@@ -33,19 +33,22 @@ public class LoginController extends HttpServlet {
         //set Database to application bean
         if (this.getServletContext().getAttribute("accountDB") == null) {
             DAO.setting(dbUrl, dbUser, dbPassword);
-            this.getServletContext().setAttribute("accountDB", (AccountDAO) DAO.getDAO("Account"));
+            this.getServletContext().setAttribute("accountDB", DAO.accountDB);
         }
         if (this.getServletContext().getAttribute("bankDB") == null) {
-            this.getServletContext().setAttribute("bankDB", (BankDAO) DAO.getDAO("Bank"));
+            this.getServletContext().setAttribute("bankDB", DAO.bankDB);
         }
         if (this.getServletContext().getAttribute("customerDB") == null) {
-            this.getServletContext().setAttribute("customerDB", (CustomerDAO) DAO.getDAO("Customer"));
+            this.getServletContext().setAttribute("customerDB", DAO.customerDB);
         }
         if (this.getServletContext().getAttribute("exchangeRateDB") == null) {
-            this.getServletContext().setAttribute("exchangeRateDB", (ExchangeRateDAO) DAO.getDAO("ExchangeRate"));
+            this.getServletContext().setAttribute("exchangeRateDB", DAO.exchangeRateDB);
         }
         if (this.getServletContext().getAttribute("historyDB") == null) {
-            this.getServletContext().setAttribute("historyDB", (HistoryDAO) DAO.getDAO("History"));
+            this.getServletContext().setAttribute("historyDB", DAO.historyDB);
+        }
+      if (this.getServletContext().getAttribute("userDB") == null) {
+            this.getServletContext().setAttribute("userDB", DAO.userDB);
         }
 
         customerDB = (CustomerDAO) this.getServletContext().getAttribute("customerDB");
@@ -88,9 +91,12 @@ public class LoginController extends HttpServlet {
 //        System.out.println(password + ',' + username);
 //        System.out.println(customerDB.getCount());
         Customer c;
+        if(username == null || password == null)
+            return false;
+        
         if (customerDB.isUsernameExist(username)) {
             c = customerDB.findByUsername(username);
-            success = c.checkPassword(password);
+            success = c.getUser().checkPassword(password);
         }
 
         return success;

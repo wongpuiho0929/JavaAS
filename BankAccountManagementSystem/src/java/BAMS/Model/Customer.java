@@ -10,7 +10,8 @@ public class Customer extends Model {
 
     protected Hashtable<String, Model> accounts = new Hashtable<String, Model>();
     private String name, tel, address;
-    private static CustomerDAO db = ((CustomerDAO) DAO.getDAO("Customer"));
+    private static CustomerDAO db = DAO.customerDB;
+    private User user;
 
     public Customer() {
     }
@@ -64,10 +65,6 @@ public class Customer extends Model {
         this.address = address;
     }
 
-    public void save() {
-        save(db);
-    }
-
     public static Customer findByUsername(String username) {
         return db.findByUsername(username);
     }
@@ -75,4 +72,15 @@ public class Customer extends Model {
     public static Customer findById(String id) {
         return (Customer) findById(db, id);
     }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+    
+    
+    
 }

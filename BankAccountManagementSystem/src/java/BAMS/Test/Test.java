@@ -13,9 +13,9 @@ public class Test {
     public static void main(String[] args) {
         try {
             setting();
-//            createTable();
+            createTable();
 //            createData();
-            refreshData();
+//            refreshData();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -28,7 +28,7 @@ public class Test {
     }
 
     private static void refreshData() throws Exception {
-        for (DAO d : DAOlist) {
+        for (DAO d : DAO.DBs) {
             d.refresh();
             printTablesSize();
         }
@@ -48,24 +48,25 @@ public class Test {
         b2.setTel("28868868");
         bankDB.create(b2);
 
-        ArrayList<Model> customerList = new ArrayList<>();
+        ArrayList<Model> userList = new ArrayList<>();
         ArrayList<Model> accountList = new ArrayList<>();
         for (int i = 0; i < 200; i++) {
+            User u = new User();
             Customer c = new Customer();
+            u.setUsername("Cust" + i);
+            u.setPassword("password");
             c.setName("Cust" + i);
-            c.setUsername("Cust" + i);
-            c.setPassword("password");
             c.setTel(20022202 + i + "");
             c.setAddress("IVE");
             System.out.println("adding Customer...");
-            customerList.add(c);
+            userList.add(c);
         }
-        customerDB.create(customerList);
+        DAO.userDB.create(userList);
         int i = 0;
-        for (Model cust : customerList) {
+        for (Model user : userList) {
             String acNo = (i++ + "").hashCode() + "";
             double balance = (new Random()).nextDouble() * 10000;
-            Account ac = new Account((Customer) cust, b, acNo, balance);
+            Account ac = new Account(((User)user).getCustomer(), b, acNo, balance);
             System.out.println("adding Account...");
             accountList.add(ac);
         }
@@ -82,14 +83,7 @@ public class Test {
         String user = "root";
         String pwd = "";
         DAO.setting(url, user, pwd);
-
-        bankDB = DAO.getDAOs().get("Bank");
-        accountDB = DAO.getDAOs().get("Account");
-        exchangeRateDB = DAO.getDAOs().get("ExchangeRate");
-        customerDB = DAO.getDAOs().get("Customer");
-        historyDB = DAO.getDAOs().get("History");
-        DAOlist = new DAO[]{bankDB, customerDB, accountDB, exchangeRateDB, historyDB
-        };
+        
         System.out.println("Setting Finish");
     }
 

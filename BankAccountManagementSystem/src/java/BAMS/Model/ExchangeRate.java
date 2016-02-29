@@ -16,8 +16,8 @@ public class ExchangeRate extends Model {
 
     private Currency currency1, currency2;
     private double rate;
-    private static ExchangeRateDAO db = ((ExchangeRateDAO) DAO.getDAO("ExchangeRate"));
-
+    private static ExchangeRateDAO db = DAO.exchangeRateDB;
+            
     public ExchangeRate() {
     }
 
@@ -51,9 +51,6 @@ public class ExchangeRate extends Model {
         this.rate = rate;
     }
 
-    public void save() {
-        save(db);
-    }
 
     public static Customer findById(String id) {
         return (Customer) findById(db, id);

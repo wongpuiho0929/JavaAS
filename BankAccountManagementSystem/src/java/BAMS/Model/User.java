@@ -1,11 +1,14 @@
 package BAMS.Model;
 
+import BAMS.DAO.DAO;
+import BAMS.DAO.UserDAO;
+
 public class User extends Model {
 
     private String username, password;
     private UserType type;
     private Customer customer;
-
+    private static UserDAO db = DAO.userDB;
     public User() {
 
     }

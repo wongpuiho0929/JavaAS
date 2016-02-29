@@ -6,6 +6,7 @@ import java.util.Date;
 
 public abstract class Model implements Serializable {
 
+    protected DAO db;
     protected String id;
     protected Date createdAt, updatedAt, deletedAt;
 
@@ -52,13 +53,13 @@ public abstract class Model implements Serializable {
         this.deletedAt = deletedAt;
     }
 
-    protected void save(DAO db) {
+    protected void save() {
 
         try {
-            if (this.getId() != null) {
-                db.update(this);
-            } else {
+            if (this.getId() == null) {
                 db.create(this);
+            } else {
+                db.update(this);
             }
         } catch (Exception e) {
             e.printStackTrace();

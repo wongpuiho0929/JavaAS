@@ -11,7 +11,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,56 +20,52 @@ public abstract class DAO {
     protected String table;
     protected static String dburl, dbUser, dbPassword;
     protected SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    protected static Hashtable<String, DAO> DAObyName = new Hashtable<>();
     protected Hashtable<String, Model> data;
     protected static Connection conn;
+    public static ArrayList<DAO> DBs;
     public static CustomerDAO customerDB;
     public static CurrencyDAO currencyDB;
     public static AccountDAO accountDB;
     public static BankDAO bankDB;
     public static ExchangeRateDAO exchangeRateDB;
     public static HistoryDAO historyDB;
+    public static UserDAO userDB;
 
     public static void setting(String dburl, String dbUser, String dbPassword) {
         try {
             DAO.dbPassword = dbPassword;
             DAO.dbUser = dbUser;
             DAO.dburl = dburl;
-
+            DBs = new ArrayList<>();
             conn = getConnection();
 
-            DAObyName.put("Bank", new BankDAO());
-            DAObyName.put("Customer", new CustomerDAO());
-            DAObyName.put("ExchangeRate", new ExchangeRateDAO());
-            DAObyName.put("Account", new AccountDAO());
-            DAObyName.put("History", new HistoryDAO());
-            DAObyName.put("Currency", new CurrencyDAO());
+            accountDB = new AccountDAO();
+            bankDB = new BankDAO();
+            currencyDB = new CurrencyDAO();
+            customerDB = new CustomerDAO();
+            exchangeRateDB = new ExchangeRateDAO();
+            historyDB = new HistoryDAO();
+            userDB = new UserDAO();
 
-            DAObyName.get("Bank").refresh();
-            DAObyName.get("Customer").refresh();
-            DAObyName.get("ExchangeRate").refresh();
-            DAObyName.get("Account").refresh();
-            DAObyName.get("History").refresh();
-            DAObyName.get("Currency").refresh();
+            DBs.add(accountDB);
+            DBs.add(bankDB);
+            DBs.add(currencyDB);
+            DBs.add(customerDB);
+            DBs.add(exchangeRateDB);
+            DBs.add(historyDB);
+            DBs.add(userDB);
 
-            accountDB = (AccountDAO)getDAO("Account");
-            bankDB = (BankDAO)getDAO("Bank");
-            currencyDB = (CurrencyDAO)getDAO("Currency");
-            customerDB = (CustomerDAO)getDAO("Customer");
-            exchangeRateDB = (ExchangeRateDAO)getDAO("ExchangeRate");
-            historyDB = (HistoryDAO)getDAO("History");
-            
+            currencyDB.refresh();
+            exchangeRateDB.refresh();
+            bankDB.refresh();
+            customerDB.refresh();
+            userDB.refresh();
+            accountDB.refresh();
+            historyDB.refresh();
+
         } catch (IOException | SQLException e) {
             e.printStackTrace();
         }
-    }
-
-    public static Hashtable<String, DAO> getDAOs() {
-        return DAObyName;
-    }
-
-    public static DAO getDAO(String name) {
-        return DAObyName.get(name);
     }
 
     public Date stringToDate(String s) {
@@ -171,10 +166,9 @@ public abstract class DAO {
     }
 
     public static String printAllCount() {
-        Enumeration<DAO> e = DAObyName.elements();
         String s = "";
-        while (e.hasMoreElements()) {
-            s += e.nextElement().printCount() + "\n";
+        for (DAO dao : DBs) {
+            s += dao.printCount() + "\n";
         }
         return s;
     }
@@ -197,13 +191,13 @@ public abstract class DAO {
         dropTable("History");
         dropTable("ExchangeRate");
         dropTable("Currency");
+        dropTable("User");
 
         System.out.println("Drop Finish");
     }
 
     private synchronized static void dropTable(String tableName) {
         try {
-            Connection conn = getConnection();
             String preQueryStatement = "DROP TABLE IF EXISTS " + tableName + ";";
             conn.createStatement().execute(preQueryStatement);
         } catch (SQLException ex) {
@@ -211,8 +205,6 @@ public abstract class DAO {
                 ex.printStackTrace();
                 ex = ex.getNextException();
             }
-        } catch (IOException ex) {
-            ex.printStackTrace();
         }
     }
 
@@ -323,9 +315,7 @@ public abstract class DAO {
                     + ");";
             stmnt.execute(sql);
 
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (SQLException | IOException e) {
             e.printStackTrace();
         }
     }

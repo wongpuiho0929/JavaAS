@@ -9,7 +9,7 @@ public class Account extends Model {
     protected Customer customer;
     protected Bank bank;
     protected double balance;
-    private static AccountDAO db = (AccountDAO) DAO.getDAO("Account");
+    private static AccountDAO db = DAO.accountDB;
 
     public Account() {
     }
@@ -54,10 +54,6 @@ public class Account extends Model {
 
     public Bank getBank() {
         return bank;
-    }
-
-    public void save() {
-        save(db);
     }
 
     public static Account findById(String id) {
