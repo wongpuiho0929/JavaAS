@@ -9,7 +9,7 @@ import java.util.Hashtable;
 public class Customer extends Model {
 
     protected Hashtable<String, Model> accounts = new Hashtable<String, Model>();
-    private String name, username, password, tel, address;
+    private String name, tel, address;
     private static CustomerDAO db = ((CustomerDAO) DAO.getDAO("Customer"));
 
     public Customer() {
@@ -45,22 +45,6 @@ public class Customer extends Model {
         this.name = name;
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public String getTel() {
         return tel;
     }
@@ -80,18 +64,14 @@ public class Customer extends Model {
         this.address = address;
     }
 
-    public boolean checkPassword(String pwd) {
-        return pwd.equals(this.getPassword());
-    }
-
     public void save() {
         save(db);
     }
 
-    public static Customer findByUsername(String username){
+    public static Customer findByUsername(String username) {
         return db.findByUsername(username);
     }
-    
+
     public static Customer findById(String id) {
         return (Customer) findById(db, id);
     }

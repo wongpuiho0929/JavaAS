@@ -24,7 +24,7 @@ public class AccountDAO extends DAO {
         Account model = (Account) m;
         boolean success = false;
         try {
-            
+
             String sql = "Insert Into Account values(?,?,?,?,?,?,?,?)";
             PreparedStatement p = conn.prepareStatement(sql);
             int index = 1;
@@ -46,7 +46,6 @@ public class AccountDAO extends DAO {
             data.put(model.getId(), model);
             System.out.println("Account added.");
 
-            
         } catch (SQLException e) {
             e.printStackTrace();
             return success;
@@ -60,7 +59,7 @@ public class AccountDAO extends DAO {
         Account model = (Account) m;
         boolean success = false;
         try {
-            
+
             String sql = "update Account set customerId=?,bankId=?,accountNo=?,balance=?,createdAt=?,updatedAt=?,deletedAt=? where id=?";
             PreparedStatement p = conn.prepareStatement(sql);
             int index = 1;
@@ -77,7 +76,6 @@ public class AccountDAO extends DAO {
 
             model.setUpdatedAt(now);
 
-            
         } catch (SQLException e) {
             e.printStackTrace();
             return success;
@@ -93,7 +91,7 @@ public class AccountDAO extends DAO {
     @Override
     protected void getData() {
         try {
-            
+
             ResultSet rs = conn.createStatement().executeQuery("select * from account where deletedAt  = 'null';");
             while (rs.next()) {
                 Account ac = new Account();
@@ -109,7 +107,7 @@ public class AccountDAO extends DAO {
                 ac.setDeletedAt(stringToDate(rs.getString("deletedAt")));
                 data.put(ac.getId(), ac);
             }
-            
+
         } catch (SQLException ex) {
             ex.printStackTrace();
         }

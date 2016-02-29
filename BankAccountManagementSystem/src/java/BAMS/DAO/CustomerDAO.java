@@ -28,7 +28,7 @@ public class CustomerDAO extends DAO {
 
         boolean success = false;
         try {
-            
+
             String sql = "Insert Into Customer values(?,?,?,?,?,?,?,?,?)";
             PreparedStatement p = conn.prepareStatement(sql);
             int index = 1;
@@ -49,7 +49,7 @@ public class CustomerDAO extends DAO {
             data.put(c.getId(), c);
             dataByUsername.put(c.getUsername(), c);
             System.out.println("Customer added.");
-            
+
         } catch (SQLException e) {
             e.printStackTrace();
             return success;
@@ -62,7 +62,7 @@ public class CustomerDAO extends DAO {
         Customer c = (Customer) m;
         boolean success = false;
         try {
-            
+
             String sql = "update Customer set name=?,username=?,password=?,tel=?,address=?,createdAt=?,updatedAt=?,deletedAt=? where id=?";
             PreparedStatement p = conn.prepareStatement(sql);
             int index = 1;
@@ -80,7 +80,6 @@ public class CustomerDAO extends DAO {
 
             c.setUpdatedAt(now);
 
-            
         } catch (SQLException e) {
             return success;
         }
@@ -95,7 +94,7 @@ public class CustomerDAO extends DAO {
     @Override
     protected void getData() {
         try {
-            
+
             ResultSet rs = conn.createStatement().executeQuery("select * from customer where deletedAt = 'null';");
             while (rs.next()) {
                 Customer c = new Customer();
@@ -111,14 +110,11 @@ public class CustomerDAO extends DAO {
                 data.put(c.getId(), c);
                 dataByUsername.put(c.getUsername(), c);
             }
-            
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-
-
-
 
     @Override
     public Customer findById(String Id) {

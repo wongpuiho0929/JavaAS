@@ -24,6 +24,12 @@ public abstract class DAO {
     protected static Hashtable<String, DAO> DAObyName = new Hashtable<>();
     protected Hashtable<String, Model> data;
     protected static Connection conn;
+    public static CustomerDAO customerDB;
+    public static CurrencyDAO currencyDB;
+    public static AccountDAO accountDB;
+    public static BankDAO bankDB;
+    public static ExchangeRateDAO exchangeRateDB;
+    public static HistoryDAO historyDB;
 
     public static void setting(String dburl, String dbUser, String dbPassword) {
         try {
@@ -38,12 +44,22 @@ public abstract class DAO {
             DAObyName.put("ExchangeRate", new ExchangeRateDAO());
             DAObyName.put("Account", new AccountDAO());
             DAObyName.put("History", new HistoryDAO());
+            DAObyName.put("Currency", new CurrencyDAO());
 
             DAObyName.get("Bank").refresh();
             DAObyName.get("Customer").refresh();
             DAObyName.get("ExchangeRate").refresh();
             DAObyName.get("Account").refresh();
             DAObyName.get("History").refresh();
+            DAObyName.get("Currency").refresh();
+
+            accountDB = (AccountDAO)getDAO("Account");
+            bankDB = (BankDAO)getDAO("Bank");
+            currencyDB = (CurrencyDAO)getDAO("Currency");
+            customerDB = (CustomerDAO)getDAO("Customer");
+            exchangeRateDB = (ExchangeRateDAO)getDAO("ExchangeRate");
+            historyDB = (HistoryDAO)getDAO("History");
+            
         } catch (IOException | SQLException e) {
             e.printStackTrace();
         }
@@ -59,7 +75,7 @@ public abstract class DAO {
 
     public Date stringToDate(String s) {
         try {
-            if (s.equals("N/A")) {
+            if (s.equals("null")) {
                 return null;
             }
             return formatter.parse(s);
@@ -87,20 +103,22 @@ public abstract class DAO {
 
     public abstract boolean create(Model m) throws Exception;
 
-    public boolean create(ArrayList<Model> m) throws Exception{
+    public boolean create(ArrayList<Model> m) throws Exception {
         boolean success = true;
-        for(Model model : m)
-            if(create(model) == false)
+        for (Model model : m) {
+            if (create(model) == false) {
                 success = false;
-        
+            }
+        }
+
         return success;
     }
 
-    public boolean delete(Model m) throws Exception{
+    public boolean delete(Model m) throws Exception {
         boolean success = false;
         try {
-            
-            String sql = "update "+ this.table +" set deletedAt=? where id=?";
+
+            String sql = "update " + this.table + " set deletedAt=? where id=?";
             PreparedStatement p = conn.prepareStatement(sql);
             int index = 1;
             Date now = new Date();
@@ -111,7 +129,6 @@ public abstract class DAO {
 
             m.setDeletedAt(now);
 
-            
         } catch (SQLException e) {
             success = false;
             e.printStackTrace();
@@ -119,23 +136,27 @@ public abstract class DAO {
         return success;
     }
 
-    public boolean delete(ArrayList<Model> m) throws Exception{
+    public boolean delete(ArrayList<Model> m) throws Exception {
         boolean success = true;
-        for(Model model : m)
-            if(delete(model) == false)
+        for (Model model : m) {
+            if (delete(model) == false) {
                 success = false;
-        
+            }
+        }
+
         return success;
     }
 
     public abstract boolean update(Model m) throws Exception;
 
-    public boolean update(ArrayList<Model> m) throws Exception{
+    public boolean update(ArrayList<Model> m) throws Exception {
         boolean success = true;
-        for(Model model : m)
-            if(update(model) == false)
+        for (Model model : m) {
+            if (update(model) == false) {
                 success = false;
-        
+            }
+        }
+
         return success;
     }
 
@@ -215,8 +236,6 @@ public abstract class DAO {
                     = "CREATE TABLE `customer` ("
                     + "  `id` varchar(30) NOT NULL,"
                     + "  `name` varchar(30) DEFAULT NULL,"
-                    + "  `username` varchar(30) DEFAULT NULL,"
-                    + "  `password` varchar(50) DEFAULT NULL,"
                     + "  `tel` varchar(8) DEFAULT NULL,"
                     + "  `address` varchar(50) DEFAULT NULL,"
                     + "  `createdAt` char(19) DEFAULT NULL,"
@@ -280,6 +299,19 @@ public abstract class DAO {
                     + ");";
             stmnt.execute(sql);
 
+            sql
+                    = "CREATE TABLE `User` ("
+                    + "  `id` varchar(30) NOT NULL,"
+                    + "  `username` varchar(30) DEFAULT NULL,"
+                    + "  `password` varchar(30) DEFAULT NULL,"
+                    + "  `type` varchar(30) DEFAULT NULL,"
+                    + "  `customerId` varchar(30) DEFAULT NULL,"
+                    + "  `createdAt` char(19) DEFAULT NULL,"
+                    + "  `updatedAt` char(19) DEFAULT NULL,"
+                    + "  `deletedAt` char(19) DEFAULT NULL,"
+                    + "  PRIMARY KEY (`id`)"
+                    + ");";
+            stmnt.execute(sql);
             sql
                     = "CREATE TABLE `Currency` ("
                     + "  `id` varchar(30) NOT NULL,"

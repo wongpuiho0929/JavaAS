@@ -84,7 +84,7 @@ public class CurrencyDAO extends DAO {
                 c.setCreatedAt(stringToDate(rs.getString("createdAt")));
                 c.setUpdatedAt(stringToDate(rs.getString("updatedAt")));
                 c.setDeletedAt(stringToDate(rs.getString("deletedAt")));
-                data.put(c.getId(),c);
+                data.put(c.getId(), c);
             }
         } catch (SQLException ex) {
             ex.printStackTrace();

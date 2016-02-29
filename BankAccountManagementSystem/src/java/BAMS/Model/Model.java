@@ -4,7 +4,7 @@ import BAMS.DAO.DAO;
 import java.io.Serializable;
 import java.util.Date;
 
-public abstract class Model implements Serializable{
+public abstract class Model implements Serializable {
 
     protected String id;
     protected Date createdAt, updatedAt, deletedAt;
@@ -52,8 +52,8 @@ public abstract class Model implements Serializable{
         this.deletedAt = deletedAt;
     }
 
-    protected void save(DAO db){
-        
+    protected void save(DAO db) {
+
         try {
             if (this.getId() != null) {
                 db.update(this);
@@ -64,9 +64,9 @@ public abstract class Model implements Serializable{
             e.printStackTrace();
         }
     }
-    
-    protected static Model findById(DAO db,String id){
+
+    protected static Model findById(DAO db, String id) {
         return db.findById(id);
     }
-    
+
 }

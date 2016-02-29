@@ -18,13 +18,13 @@ public class Bank extends Model {
         this.tel = tel;
         this.address = address;
     }
-    
-    public Bank(){
+
+    public Bank() {
         name = "";
         tel = "";
         address = "";
     }
-    
+
     public void addAccount(Account ac) {
         accounts.put(ac.getId(), ac);
     }
@@ -66,13 +66,13 @@ public class Bank extends Model {
     public void save() {
         save(db);
     }
-    
-    public static Bank findById(String id){
-        return (Bank)findById(db, id);
+
+    public static Bank findById(String id) {
+        return (Bank) findById(db, id);
     }
-    
-    public static Bank findByName(String name){
+
+    public static Bank findByName(String name) {
         return db.findByName(name);
     }
-    
+
 }

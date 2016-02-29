@@ -15,7 +15,7 @@ public class Currency extends Model {
 
     private ArrayList<ExchangeRate> erList;
     private String name;
-    
+
     public Currency() {
         super();
         erList = new ArrayList<>();
@@ -28,15 +28,13 @@ public class Currency extends Model {
     public void setName(String name) {
         this.name = name;
     }
-    
-    public ArrayList<ExchangeRate> getExchangeRateList(){
+
+    public ArrayList<ExchangeRate> getExchangeRateList() {
         return erList;
     }
-    
-    public void addExchangeRate(ExchangeRate er){
+
+    public void addExchangeRate(ExchangeRate er) {
         erList.add(er);
     }
-    
-    
 
 }
