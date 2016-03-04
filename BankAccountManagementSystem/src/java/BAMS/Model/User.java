@@ -1,5 +1,6 @@
 package BAMS.Model;
 
+import BAMS.Enum.UserType;
 import BAMS.DAO.DAO;
 import BAMS.DAO.UserDAO;
 

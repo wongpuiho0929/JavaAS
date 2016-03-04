@@ -9,7 +9,7 @@ import static BAMS.DAO.DAO.conn;
 import BAMS.Model.Customer;
 import BAMS.Model.Model;
 import BAMS.Model.User;
-import BAMS.Model.UserType;
+import BAMS.Enum.UserType;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,7 +22,8 @@ import java.util.Hashtable;
  */
 public class UserDAO extends DAO {
 
-    private Hashtable<String,User> dataByUsername;
+    private Hashtable<String, User> dataByUsername;
+
     public UserDAO() {
         this.table = "User";
         data = new Hashtable<>();
@@ -51,7 +52,6 @@ public class UserDAO extends DAO {
             p.setString(index++, dateToString(model.getDeletedAt()));
 
             success = p.execute();
-            model.getCustomer().setUser(model);
             DAO.customerDB.putCustomerByUsername(model);
             model.setId(nextId);
             data.put(model.getId(), model);
@@ -128,17 +128,21 @@ public class UserDAO extends DAO {
         }
     }
 
-    public boolean isUsernameExist(String username){
+    public boolean isUsernameExist(String username) {
         return dataByUsername.containsKey(username);
     }
-    
-    public User findByUsername(String username){
+
+    public User findByUsername(String username) {
         return dataByUsername.get(username);
     }
-    
+
     @Override
     protected String getNextId() {
-        return "U"+data.size();
+        return "U" + data.size();
     }
 
+    protected void clearData() {
+        super.clearData();
+        dataByUsername = new Hashtable<>();
+    }
 }

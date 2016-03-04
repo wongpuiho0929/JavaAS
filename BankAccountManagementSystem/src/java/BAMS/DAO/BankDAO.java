@@ -102,7 +102,7 @@ public class BankDAO extends DAO {
                 b.setUpdatedAt(stringToDate(rs.getString("updatedAt")));
                 b.setDeletedAt(stringToDate(rs.getString("deletedAt")));
                 data.put(b.getId(), b);
-
+                dataByName.put(b.getName(), b);
             }
 
         } catch (SQLException ex) {
@@ -128,4 +128,8 @@ public class BankDAO extends DAO {
         return dataByName.get(name);
     }
 
+    protected void clearData() {
+        super.clearData();
+        dataByName = new Hashtable<>();
+    }
 }

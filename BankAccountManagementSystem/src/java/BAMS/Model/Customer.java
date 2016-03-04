@@ -73,6 +73,15 @@ public class Customer extends Model {
         return (Customer) findById(db, id);
     }
 
+    public String getUsername(){
+//        System.out.println(user == null);
+        return user.getUsername();
+    }
+    
+    public String getPassword(){
+        return user.getPassword();
+    }
+    
     public User getUser() {
         return user;
     }

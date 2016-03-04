@@ -210,7 +210,7 @@ public abstract class DAO {
 
     protected abstract String getNextId();
 
-    private void clearData() {
+    protected void clearData() {
         data = new Hashtable<>();
     }
 

@@ -23,8 +23,9 @@ public class CustomerDAO extends DAO {
     @Override
     public synchronized boolean create(Model m) throws Exception {
         Customer model = (Customer) m;
-        if (dataByUsername.containsKey(model.getUser().getUsername())) {
-            throw new SameUsernameException(model.getUser().getUsername());
+//        System.out.println(model == null);
+        if (dataByUsername.containsKey(model.getUsername())) {
+            throw new SameUsernameException(model.getUsername());
         }
 
         boolean success = false;
@@ -127,5 +128,9 @@ public class CustomerDAO extends DAO {
     public Customer findByUsername(String username) {
         return (Customer) dataByUsername.get(username);
     }
-
+    
+    protected void clearData(){
+        super.clearData();
+        dataByUsername = new Hashtable<>();
+    }
 }

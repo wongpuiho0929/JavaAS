@@ -5,17 +5,13 @@
  */
 package BAMS.DAO;
 
-import static BAMS.DAO.DAO.getConnection;
 import BAMS.Model.Account;
 import BAMS.Model.Customer;
 import BAMS.Model.History;
 import BAMS.Model.Model;
-import java.io.IOException;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 

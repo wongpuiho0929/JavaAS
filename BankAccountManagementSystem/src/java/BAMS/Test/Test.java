@@ -1,13 +1,14 @@
 package BAMS.Test;
 
 import BAMS.DAO.*;
+import BAMS.Enum.UserType;
 import BAMS.Model.*;
 import java.util.ArrayList;
 import java.util.Random;
 
 public class Test {
 
-    private static DAO bankDB, accountDB, exchangeRateDB, customerDB, historyDB;
+//    private static DAO bankDB, accountDB, exchangeRateDB, customerDB, historyDB;
     private static DAO[] DAOlist;
 
     public static void main(String[] args) {
@@ -57,7 +58,10 @@ public class Test {
             c.setName("Cust" + i);
             c.setTel(20022202 + i + "");
             c.setAddress("IVE");
-            System.out.println("adding Customer...");
+            c.setUser(u);
+            u.setType(UserType.Customer);
+            u.setCustomer(c);
+//            System.out.println("adding Customer...");
             userList.add(u);
         }
         DAO.userDB.create(userList);

@@ -1,4 +1,4 @@
-package BAMS.Model;
+package BAMS.Enum;
 
 public enum UserType {
 

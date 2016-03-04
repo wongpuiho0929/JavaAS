@@ -3,6 +3,7 @@ package BAMS.Command;
 import BAMS.DAO.DAO;
 import BAMS.Enum.Action;
 import BAMS.Enum.Target;
+import BAMS.Model.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -11,7 +12,7 @@ public abstract class Command {
     public abstract void setting(HttpServletRequest request, HttpServletResponse response);
 
     public abstract void run();
-    
+
     public abstract void log();
 
     public static Command getCommand(Target target, Action action) {
@@ -113,6 +114,23 @@ public abstract class Command {
 
         }
         return c;
+    }
+
+    public static Command getCommand(Customer c, Action action) {
+        Command cmd = null;
+        switch (action) {
+            case create:
+                cmd = new CreateCustomerCommand();
+                break;
+            case delete:
+                cmd = new CreateCustomerCommand();
+                break;
+            case edit:
+                cmd = new CreateCustomerCommand();
+                break;
+
+        }
+        return cmd;
     }
 
 }

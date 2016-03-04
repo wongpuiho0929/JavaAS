@@ -5,18 +5,14 @@
  */
 package BAMS.DAO;
 
-import static BAMS.DAO.DAO.getConnection;
 import BAMS.Model.Currency;
 import BAMS.Model.ExchangeRate;
 import BAMS.Model.Model;
-import java.io.IOException;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.Hashtable;
 
 /**
@@ -133,4 +129,11 @@ public class ExchangeRateDAO extends DAO {
         return currency.getExchangeRateList();
     }
 
+    @Override
+    protected void clearData() {
+        super.clearData(); //To change body of generated methods, choose Tools | Templates.
+        dataByName = new Hashtable<>();
+    }
+
+    
 }
