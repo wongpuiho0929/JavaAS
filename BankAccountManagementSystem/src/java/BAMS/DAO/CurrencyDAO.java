@@ -18,21 +18,26 @@ import java.util.Hashtable;
  */
 public class CurrencyDAO extends DAO {
 
-    public CurrencyDAO(){
+    private Hashtable<String, Currency> dataByPrefix;
+
+    public CurrencyDAO() {
         this.table = "Currency";
         data = new Hashtable<>();
+        dataByPrefix = new Hashtable<>();
     }
+
     @Override
     public boolean create(Model m) throws Exception {
         try {
             Currency model = (Currency) m;
             boolean success = false;
-            String sql = "Insert Into Currency values(?,?,?,?,?)";
+            String sql = "Insert Into Currency values(?,?,?,?,?,?)";
             PreparedStatement p = conn.prepareStatement(sql);
             int index = 1;
             String nextId = getNextId();
             p.setString(index++, nextId);
             p.setString(index++, model.getName());
+            p.setString(index++, model.getPrefix());
             p.setString(index++, dateToString(model.getCreatedAt()));
             p.setString(index++, dateToString(model.getUpdatedAt()));
             p.setString(index++, dateToString(model.getDeletedAt()));
@@ -53,10 +58,11 @@ public class CurrencyDAO extends DAO {
         boolean success = false;
         try {
             Currency model = (Currency) m;
-            String sql = "update Currency set name=?,updatedAt=? where id=?";
+            String sql = "update Currency set name=?,prefix=?,updatedAt=? where id=?";
             PreparedStatement p = conn.prepareStatement(sql);
             int index = 1;
             p.setString(index++, model.getName());
+            p.setString(index++, model.getPrefix());
             p.setString(index++, dateToString(model.getUpdatedAt()));
             p.setString(index++, model.getId());
             p.execute();
@@ -82,10 +88,12 @@ public class CurrencyDAO extends DAO {
                 Currency c = new Currency();
                 c.setId(rs.getString("id"));
                 c.setName(rs.getString("name"));
+                c.setPrefix(rs.getString("prefix"));
                 c.setCreatedAt(stringToDate(rs.getString("createdAt")));
                 c.setUpdatedAt(stringToDate(rs.getString("updatedAt")));
                 c.setDeletedAt(stringToDate(rs.getString("deletedAt")));
                 data.put(c.getId(), c);
+                dataByPrefix.put(c.getPrefix(), c);
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -97,4 +105,16 @@ public class CurrencyDAO extends DAO {
         return "CURR" + data.size();
     }
 
+    @Override
+    protected void clearData() {
+        super.clearData(); //To change body of generated methods, choose Tools | Templates.
+        dataByPrefix = new Hashtable<>();
+    }
+
+    public Currency findByPrefix(String prefix) {
+        if (dataByPrefix.containsKey(prefix)) {
+            return dataByPrefix.get(prefix);
+        }
+        return null;
+    }
 }

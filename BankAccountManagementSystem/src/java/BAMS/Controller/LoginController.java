@@ -33,6 +33,7 @@ public class LoginController extends HttpServlet {
         //set Database to application bean
         if (this.getServletContext().getAttribute("accountDB") == null) {
             DAO.setting(dbUrl, dbUser, dbPassword);
+            DAO.refreshAll();
             this.getServletContext().setAttribute("accountDB", DAO.accountDB);
         }
         if (this.getServletContext().getAttribute("bankDB") == null) {

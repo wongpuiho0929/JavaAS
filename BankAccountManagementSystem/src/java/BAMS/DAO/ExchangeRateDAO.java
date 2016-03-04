@@ -21,7 +21,7 @@ import java.util.Hashtable;
  */
 public class ExchangeRateDAO extends DAO {
 
-    private Hashtable<String, ExchangeRate> dataByName = new Hashtable<>();
+    private Hashtable<String, ExchangeRate> dataByPrefix = new Hashtable<>();
 
     public ExchangeRateDAO() {
         table = "ExchangeRate";
@@ -105,7 +105,7 @@ public class ExchangeRateDAO extends DAO {
                 er.setUpdatedAt(stringToDate(rs.getString("updatedAt")));
                 er.setDeletedAt(stringToDate(rs.getString("deletedAt")));
                 data.put(er.getId(), er);
-                dataByName.put(er.getCurrency1().getName() + er.getCurrency2().getName(), er);
+                dataByPrefix.put(er.getCurrency1().getPrefix() + er.getCurrency2().getPrefix(), er);
                 c1.addExchangeRate(er);
                 c2.addExchangeRate(er);
             }
@@ -120,9 +120,22 @@ public class ExchangeRateDAO extends DAO {
         return "ER" + data.size();
     }
 
+    public ExchangeRate findByPrefix(Currency c1, Currency c2) {
+        if (dataByPrefix.containsKey(c1.getPrefix() + c2.getPrefix())) {
+            return dataByPrefix.get(c1.getPrefix() + c2.getPrefix());
+        }
+        if (dataByPrefix.containsKey(c2.getPrefix() + c1.getPrefix())) {
+            return dataByPrefix.get(c2.getPrefix() + c1.getPrefix());
+        }
+        return null;
+    }
+
     @Override
     public ExchangeRate findById(String Id) {
-        return (ExchangeRate) data.get(Id);
+        if (data.contains(Id)) {
+            return (ExchangeRate) data.get(Id);
+        }
+        return null;
     }
 
     public ArrayList<ExchangeRate> findByCurrency(Currency currency) {
@@ -132,8 +145,7 @@ public class ExchangeRateDAO extends DAO {
     @Override
     protected void clearData() {
         super.clearData(); //To change body of generated methods, choose Tools | Templates.
-        dataByName = new Hashtable<>();
+        dataByPrefix = new Hashtable<>();
     }
 
-    
 }

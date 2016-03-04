@@ -11,10 +11,11 @@ import java.util.ArrayList;
  *
  * @author User
  */
-public class Currency extends Model {
+public class Currency extends Model implements Comparable<Currency> {
 
     private ArrayList<ExchangeRate> erList;
     private String name;
+    private String prefix;
 
     public Currency() {
         super();
@@ -29,12 +30,25 @@ public class Currency extends Model {
         this.name = name;
     }
 
+    public String getPrefix() {
+        return prefix;
+    }
+
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+    }
+
     public ArrayList<ExchangeRate> getExchangeRateList() {
         return erList;
     }
 
     public void addExchangeRate(ExchangeRate er) {
         erList.add(er);
+    }
+
+    @Override
+    public int compareTo(Currency o) {
+        return this.getName().compareTo(o.getName());
     }
 
 }

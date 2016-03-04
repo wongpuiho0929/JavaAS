@@ -48,7 +48,7 @@ public class CustomerDAO extends DAO {
             model.setId(nextId);
             data.put(model.getId(), model);
             dataByUsername.put(model.getUser().getUsername(), model);
-            System.out.println("Customer added.");
+//            System.out.println("Customer added.");
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -113,7 +113,7 @@ public class CustomerDAO extends DAO {
     
     public void putCustomerByUsername(User u){
         dataByUsername.put(u.getUsername(), u.getCustomer());
-        System.out.println(u.getCustomer().getId());
+//        System.out.println(u.getCustomer().getId());
     }
 
     @Override

@@ -47,22 +47,13 @@ public abstract class DAO {
             historyDB = new HistoryDAO();
             userDB = new UserDAO();
 
-            DBs.add(accountDB);
             DBs.add(bankDB);
             DBs.add(currencyDB);
-            DBs.add(customerDB);
             DBs.add(exchangeRateDB);
+            DBs.add(customerDB);
             DBs.add(historyDB);
             DBs.add(userDB);
-
-            currencyDB.refresh();
-            exchangeRateDB.refresh();
-            bankDB.refresh();
-            customerDB.refresh();
-            userDB.refresh();
-            accountDB.refresh();
-            historyDB.refresh();
-
+            DBs.add(accountDB);
         } catch (IOException | SQLException e) {
             e.printStackTrace();
         }
@@ -214,6 +205,12 @@ public abstract class DAO {
         data = new Hashtable<>();
     }
 
+    public static void refreshAll() {
+        for (DAO d : DBs) {
+            d.refresh();
+        }
+    }
+
     public void refresh() {
         clearData();
         getData();
@@ -257,6 +254,7 @@ public abstract class DAO {
                     + "  `bankId` varchar(30) DEFAULT NULL,"
                     + "  `accountNo` varchar(30) DEFAULT NULL,"
                     + "  `balance` int DEFAULT 0,"
+                    + "  `currencyId` varchar(30) DEFAULT NULL,"
                     + "  `createdAt` char(19) DEFAULT NULL,"
                     + "  `updatedAt` char(19) DEFAULT NULL,"
                     + "  `deletedAt` char(19) DEFAULT NULL,"
@@ -308,6 +306,7 @@ public abstract class DAO {
                     = "CREATE TABLE `Currency` ("
                     + "  `id` varchar(30) NOT NULL,"
                     + "  `name` varchar(30) DEFAULT NULL,"
+                    + "  `prefix` varchar(30) DEFAULT NULL,"
                     + "  `createdAt` char(19) DEFAULT NULL,"
                     + "  `updatedAt` char(19) DEFAULT NULL,"
                     + "  `deletedAt` char(19) DEFAULT NULL,"
@@ -330,4 +329,5 @@ public abstract class DAO {
         System.out.println("Connection closed.");
         super.finalize();
     }
+
 }
