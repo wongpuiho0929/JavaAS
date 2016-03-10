@@ -5,44 +5,44 @@ import BAMS.DAO.HistoryDAO;
 
 public class History extends Model {
 
-    private Customer customer;
-    private Bank bank;
-    private Account account;
+    private String customerId;
+    private String bankId;
+    private String accountId;
     private String action;
     private static HistoryDAO db = DAO.historyDB;
 
     public History() {
     }
 
-    public History(Customer customer, Bank bank, Account account, String action) {
-        this.customer = customer;
-        this.bank = bank;
-        this.account = account;
+    public History(String customer, String bank, String account, String action) {
+        this.customerId = customer;
+        this.bankId = bank;
+        this.accountId = account;
         this.action = action;
     }
 
     public Customer getCustomer() {
-        return customer;
+        return DAO.customerDB.findById(this.customerId);
     }
 
     public void setCustomer(Customer customer) {
-        this.customer = customer;
+        this.customerId = customer.getId();
     }
 
     public Bank getBank() {
-        return bank;
+        return DAO.bankDB.findById(this.bankId);
     }
 
     public void setBank(Bank bank) {
-        this.bank = bank;
+        this.bankId = bank.getId();
     }
 
     public Account getAccount() {
-        return account;
+        return DAO.accountDB.findById(this.accountId);
     }
 
     public void setAccount(Account account) {
-        this.account = account;
+        this.accountId = account.getId();
     }
 
     public String getAction() {
@@ -55,7 +55,7 @@ public class History extends Model {
 
     @Override
     public String toString() {
-        return "History (" + id + "): " + customer.getName() + "(" + customer.getId() + ")" + ": account(" + account.getAccountNo() + "): " + action;
+        return "History (" + id + "): " + getCustomer().getName() + "(" + getCustomer().getId() + ")" + ": account(" + getAccount().getAccountNo() + "): " + action;
     }
 
     public static History findById(String id) {

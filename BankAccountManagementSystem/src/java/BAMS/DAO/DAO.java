@@ -2,21 +2,17 @@ package BAMS.DAO;
 
 import BAMS.Model.Model;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public abstract class DAO {
 
+    protected ResultSet rs;
     protected String table;
     protected static String dburl, dbUser, dbPassword;
     protected SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -87,7 +83,17 @@ public abstract class DAO {
         return DriverManager.getConnection(dburl, dbUser, dbPassword);
     }
 
-    public abstract boolean create(Model m) throws Exception;
+    public synchronized boolean create(Model m) throws Exception {
+
+        m.setId(getNextId());
+//        System.out.println("id:" + m.getId());
+        rs.moveToInsertRow();
+        rs.updateString("id", m.getId());
+        rs.insertRow();
+        rs.last();
+        m.setIndex(rs.getRow());
+        return update(m);
+    }
 
     public boolean create(ArrayList<Model> m) throws Exception {
         boolean success = true;

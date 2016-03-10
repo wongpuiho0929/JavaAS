@@ -10,6 +10,7 @@ import BAMS.Model.Model;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.Hashtable;
 
 /**
@@ -28,44 +29,31 @@ public class CurrencyDAO extends DAO {
 
     @Override
     public boolean create(Model m) throws Exception {
-        try {
-            Currency model = (Currency) m;
-            boolean success = false;
-            String sql = "Insert Into Currency values(?,?,?,?,?,?)";
-            PreparedStatement p = conn.prepareStatement(sql);
-            int index = 1;
-            String nextId = getNextId();
-            p.setString(index++, nextId);
-            p.setString(index++, model.getName());
-            p.setString(index++, model.getPrefix());
-            p.setString(index++, dateToString(model.getCreatedAt()));
-            p.setString(index++, dateToString(model.getUpdatedAt()));
-            p.setString(index++, dateToString(model.getDeletedAt()));
-
-            success = p.execute();
-
-            model.setId(nextId);
+        Currency model = (Currency) m;
+        if (super.create(m)) {
             data.put(model.getId(), model);
-            return success;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            return true;
         }
+        return false;
     }
 
     @Override
     public boolean update(Model m) throws Exception {
         boolean success = false;
+        Currency model = (Currency) m;
+        if (model.isDeleted()) {
+            return success;
+        }
         try {
-            Currency model = (Currency) m;
-            String sql = "update Currency set name=?,prefix=?,updatedAt=? where id=?";
-            PreparedStatement p = conn.prepareStatement(sql);
-            int index = 1;
-            p.setString(index++, model.getName());
-            p.setString(index++, model.getPrefix());
-            p.setString(index++, dateToString(model.getUpdatedAt()));
-            p.setString(index++, model.getId());
-            p.execute();
+            Date now = new Date();
+            model.setUpdatedAt(now);
+            rs.absolute(model.getIndex());
+            rs.updateString("id", model.getId());
+            rs.updateString("name", model.getName());
+            rs.updateString("prefix", model.getPrefix());
+            rs.updateString("createdAt", dateToString(model.getCreatedAt()));
+            rs.updateString("updatedAt", dateToString(model.getUpdatedAt()));
+            rs.updateString("deletedAt", dateToString(model.getDeletedAt()));
             success = true;
 
         } catch (SQLException e) {
@@ -76,14 +64,15 @@ public class CurrencyDAO extends DAO {
     }
 
     @Override
-    public Model findById(String Id) {
-        return data.get(Id);
+    public Currency findById(String Id) {
+        return (Currency) data.get(Id);
     }
 
     @Override
     protected void getData() {
         try {
-            ResultSet rs = conn.createStatement().executeQuery("select * from Currency  where deletedAt = 'null'");
+            ResultSet rs = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE).executeQuery("select * from Currency");
+            this.rs = rs;
             while (rs.next()) {
                 Currency c = new Currency();
                 c.setId(rs.getString("id"));
@@ -117,4 +106,5 @@ public class CurrencyDAO extends DAO {
         }
         return null;
     }
+
 }

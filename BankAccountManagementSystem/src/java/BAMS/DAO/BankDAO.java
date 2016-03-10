@@ -2,15 +2,11 @@ package BAMS.DAO;
 
 import BAMS.Model.Bank;
 import BAMS.Model.Model;
-import java.io.IOException;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
-import java.util.List;
 
 public class BankDAO extends DAO {
 
@@ -22,63 +18,37 @@ public class BankDAO extends DAO {
     }
 
     @Override
-    public synchronized boolean create(Model m) {
+    public synchronized boolean create(Model m) throws Exception {
         Bank model = (Bank) m;
-        boolean success = false;
-        try {
-
-            String sql = "Insert Into bank values(?,?,?,?,?,?,?)";
-            PreparedStatement p = conn.prepareStatement(sql);
-            int index = 1;
-            String nextId = getNextId();
-            p.setString(index++, nextId);
-            p.setString(index++, model.getName());
-            p.setString(index++, model.getTel());
-            p.setString(index++, model.getAddress());
-            p.setString(index++, dateToString(model.getCreatedAt()));
-            p.setString(index++, dateToString(model.getUpdatedAt()));
-            p.setString(index++, dateToString(model.getDeletedAt()));
-            p.execute();
-            success = true;
-//            System.out.println(nextId);
-
-            model.setId(nextId);
-//                System.out.println(model.getId() == null);
+        if (super.create(m)) {
             data.put(model.getId(), model);
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return success;
+            System.out.println("data count:" + data.size());
+            return true;
         }
-
-        return success;
+        return false;
     }
 
     @Override
-    public synchronized boolean update(Model m) {
+    public synchronized boolean update(Model m) throws Exception {
         Bank model = (Bank) m;
         boolean success = false;
-        try {
-
-            String sql = "update Bank set name=?,tel=?,address=?,createdAt=?,updatedAt=?,deletedAt=? where id=?";
-            PreparedStatement p = conn.prepareStatement(sql);
-            int index = 1;
-            Date now = new Date();
-            p.setString(index++, model.getName());
-            p.setString(index++, model.getTel());
-            p.setString(index++, model.getAddress());
-            p.setString(index++, dateToString(model.getCreatedAt()));
-            p.setString(index++, dateToString(now));
-            p.setString(index++, dateToString(model.getDeletedAt()));
-            p.setString(index++, model.getId());
-            success = p.execute();
-
-            model.setUpdatedAt(now);
-
-        } catch (SQLException e) {
-            e.printStackTrace();
+        if (model.isDeleted()) {
             return success;
         }
+        Date now = new Date();
+        model.setUpdatedAt(now);
+        rs.absolute(model.getIndex());
+        rs.updateString("id", model.getId());
+        rs.updateString("name", model.getName());
+        rs.updateString("tel", model.getTel());
+        rs.updateString("address", model.getAddress());
+        rs.updateString("createdAt", dateToString(model.getCreatedAt()));
+        rs.updateString("updatedAt", dateToString(model.getUpdatedAt()));
+        rs.updateString("deletedAt", dateToString(model.getDeletedAt()));
+        rs.updateRow();
+        System.out.println(model.getName());
+        success = true;
+
         return success;
     }
 
@@ -91,7 +61,8 @@ public class BankDAO extends DAO {
     protected void getData() {
         try {
 
-            ResultSet rs = conn.createStatement().executeQuery("select * from bank where deletedAt = 'null';");
+            ResultSet rs = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE).executeQuery("select * from bank");
+            this.rs = rs;
             while (rs.next()) {
                 Bank b = new Bank();
                 b.setAddress(rs.getString("address"));

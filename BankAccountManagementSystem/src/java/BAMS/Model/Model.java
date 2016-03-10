@@ -9,12 +9,22 @@ public abstract class Model implements Serializable {
     protected DAO db;
     protected String id;
     protected Date createdAt, updatedAt, deletedAt;
+    protected int index;
+    
 
     public Model() {
         updatedAt = createdAt = new Date();
         deletedAt = null;
     }
 
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+    
     public String getId() {
         return this.id;
     }
@@ -70,4 +80,7 @@ public abstract class Model implements Serializable {
         return db.findById(id);
     }
 
+    public boolean isDeleted(){
+        return deletedAt != null;
+    }
 }

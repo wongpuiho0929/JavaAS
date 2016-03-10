@@ -23,58 +23,32 @@ public class CustomerDAO extends DAO {
     @Override
     public synchronized boolean create(Model m) throws Exception {
         Customer model = (Customer) m;
-//        System.out.println(model == null);
-        if (dataByUsername.containsKey(model.getUsername())) {
-            throw new SameUsernameException(model.getUsername());
-        }
-
-        boolean success = false;
-        try {
-
-            String sql = "Insert Into Customer values(?,?,?,?,?,?,?)";
-            PreparedStatement p = conn.prepareStatement(sql);
-            int index = 1;
-            String nextId = getNextId();
-            p.setString(index++, nextId);
-            p.setString(index++, model.getName());
-            p.setString(index++, model.getTel());
-            p.setString(index++, model.getAddress());
-            p.setString(index++, dateToString(model.getCreatedAt()));
-            p.setString(index++, dateToString(model.getUpdatedAt()));
-            p.setString(index++, dateToString(model.getDeletedAt()));
-
-            success = p.execute();
-
-            model.setId(nextId);
+        if (super.create(m)) {
             data.put(model.getId(), model);
-            dataByUsername.put(model.getUser().getUsername(), model);
-//            System.out.println("Customer added.");
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return success;
+            return true;
         }
-        return success;
+        return false;
     }
 
     @Override
     public synchronized boolean update(Model m) {
         Customer model = (Customer) m;
         boolean success = false;
+        if (model.isDeleted()) {
+            return success;
+        }
         try {
-
-            String sql = "update Customer set name=?,tel=?,address=?,createdAt=?,updatedAt=?,deletedAt=? where id=?";
-            PreparedStatement p = conn.prepareStatement(sql);
-            int index = 1;
             Date now = new Date();
-            p.setString(index++, model.getName());
-            p.setString(index++, model.getTel());
-            p.setString(index++, model.getAddress());
-            p.setString(index++, dateToString(model.getCreatedAt()));
-            p.setString(index++, dateToString(now));
-            p.setString(index++, dateToString(model.getDeletedAt()));
-            p.setString(index++, model.getId());
-            success = p.execute();
+            rs.absolute(model.getIndex());
+            rs.updateString("id", model.getId());
+            rs.updateString("name", model.getName());
+            rs.updateString("tel", model.getTel());
+            rs.updateString("address", model.getAddress());
+            rs.updateString("createdAt", dateToString(model.getCreatedAt()));
+            rs.updateString("updatedAt", dateToString(now));
+            rs.updateString("deletedAt", dateToString(model.getDeletedAt()));
+            rs.updateRow();
+            success = true;
 
             model.setUpdatedAt(now);
 
@@ -93,9 +67,11 @@ public class CustomerDAO extends DAO {
     protected void getData() {
         try {
 
-            ResultSet rs = conn.createStatement().executeQuery("select * from customer where deletedAt = 'null';");
+            ResultSet rs = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE).executeQuery("select * from customer;");
+            this.rs = rs;
             while (rs.next()) {
                 Customer c = new Customer();
+                c.setIndex(rs.getRow());
                 c.setId(rs.getString("id"));
                 c.setAddress(rs.getString("address"));
                 c.setName(rs.getString("name"));
@@ -110,8 +86,8 @@ public class CustomerDAO extends DAO {
             e.printStackTrace();
         }
     }
-    
-    public void putCustomerByUsername(User u){
+
+    public void putCustomerByUsername(User u) {
         dataByUsername.put(u.getUsername(), u.getCustomer());
 //        System.out.println(u.getCustomer().getId());
     }
@@ -128,8 +104,8 @@ public class CustomerDAO extends DAO {
     public Customer findByUsername(String username) {
         return (Customer) dataByUsername.get(username);
     }
-    
-    protected void clearData(){
+
+    protected void clearData() {
         super.clearData();
         dataByUsername = new Hashtable<>();
     }

@@ -27,57 +27,36 @@ public class HistoryDAO extends DAO {
     }
 
     @Override
-    public synchronized boolean create(Model m) {
+    public synchronized boolean create(Model m) throws Exception {
         History model = (History) m;
-        boolean success = false;
-        try {
-
-            String sql = "Insert Into History values(?,?,?,?,?,?,?,?)";
-            PreparedStatement p = conn.prepareStatement(sql);
-            int index = 1;
-            String nextId = getNextId();
-            p.setString(index++, nextId);
-            p.setString(index++, model.getCustomer().getId());
-            p.setString(index++, model.getBank().getId());
-            p.setString(index++, model.getAccount().getId());
-            p.setString(index++, model.getAction());
-            p.setString(index++, dateToString(model.getCreatedAt()));
-            p.setString(index++, dateToString(model.getUpdatedAt()));
-            p.setString(index++, dateToString(model.getDeletedAt()));
-
-            success = p.execute();
-
-            model.setId(nextId);
+        if (super.create(m)) {
             data.put(model.getId(), model);
-
-        } catch (SQLException e) {
-            return success;
+            return true;
         }
-        return success;
+
+        return false;
     }
 
     @Override
     public synchronized boolean update(Model m) {
         History model = (History) m;
         boolean success = false;
+        if (model.isDeleted()) {
+            return success;
+        }
         try {
-
-            String sql = "update History set customerId=?,bankId=?,accountId=?,action=?,createdAt=?,updatedAt=?,deletedAt=? where id=?";
-            PreparedStatement p = conn.prepareStatement(sql);
-            int index = 1;
             Date now = new Date();
-            p.setString(index++, model.getCustomer().getId());
-            p.setString(index++, model.getBank().getId());
-            p.setString(index++, model.getAccount().getId());
-            p.setString(index++, model.getAction());
-            p.setString(index++, dateToString(model.getCreatedAt()));
-            p.setString(index++, dateToString(now));
-            p.setString(index++, dateToString(model.getDeletedAt()));
-
-            p.setString(index++, model.getId());
-            success = p.execute();
-
             model.setUpdatedAt(now);
+            rs.absolute(model.getIndex());
+            rs.updateString("id", model.getId());
+            rs.updateString("customerId", model.getCustomer().getId());
+            rs.updateString("bankId", model.getBank().getId());
+            rs.updateString("accountId", model.getAccount().getId());
+            rs.updateString("action", model.getAction());
+            rs.updateString("createdAt", dateToString(model.getCreatedAt()));
+            rs.updateString("updatedAt", dateToString(model.getUpdatedAt()));
+            rs.updateString("deletedAt", dateToString(model.getDeletedAt()));
+            success = true;
 
         } catch (SQLException e) {
             return success;
@@ -89,12 +68,14 @@ public class HistoryDAO extends DAO {
     protected void getData() {
         try {
 
-            ResultSet rs = conn.createStatement().executeQuery("select * from history where deletedAt  = 'null';");
+            ResultSet rs = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE).executeQuery("select * from history");
+            this.rs = rs;
             while (rs.next()) {
                 History h = new History();
-                Account ac = (Account)DAO.accountDB.findById(rs.getString("accountId"));
-                Customer c = (Customer)DAO.customerDB.findById(rs.getString("customerId"));
+                Account ac = (Account) DAO.accountDB.findById(rs.getString("accountId"));
+                Customer c = (Customer) DAO.customerDB.findById(rs.getString("customerId"));
                 h.setId(rs.getString("id"));
+                h.setIndex(rs.getRow());
                 h.setAccount(ac);
                 h.setAction(rs.getString("action"));
                 h.setCustomer(c);

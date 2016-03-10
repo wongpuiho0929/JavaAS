@@ -33,60 +33,37 @@ public class UserDAO extends DAO {
     @Override
     public boolean create(Model m) throws Exception {
         User model = (User) m;
-
-        boolean success = false;
-        try {
-
-            String sql = "Insert Into User values(?,?,?,?,?,?,?,?)";
-            PreparedStatement p = conn.prepareStatement(sql);
-            int index = 1;
-            String nextId = getNextId();
-            p.setString(index++, nextId);
-            p.setString(index++, model.getUsername());
-            p.setString(index++, model.getPassword());
-            p.setString(index++, model.getType().toString());
-            DAO.customerDB.create(model.getCustomer());
-            p.setString(index++, model.getCustomer().getId());
-            p.setString(index++, dateToString(model.getCreatedAt()));
-            p.setString(index++, dateToString(model.getUpdatedAt()));
-            p.setString(index++, dateToString(model.getDeletedAt()));
-
-            success = p.execute();
+        if (super.create(m)) {
             DAO.customerDB.putCustomerByUsername(model);
-            model.setId(nextId);
             data.put(model.getId(), model);
             dataByUsername.put(model.getUsername(), model);
-//            System.out.println("User added.");
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return success;
+            return true;
         }
-        return success;
+        return false;
     }
 
     @Override
     public boolean update(Model m) throws Exception {
         User model = (User) m;
         boolean success = false;
+        if (model.isDeleted()) {
+            return success;
+        }
         try {
 
-            String sql = "update Customer set username=?,password=?,customerId=?,createdAt=?,updatedAt=?,deletedAt=? where id=?";
-            PreparedStatement p = conn.prepareStatement(sql);
-            int index = 1;
-            Date now = new Date();
-            p.setString(index++, model.getUsername());
-            p.setString(index++, model.getPassword());
-            p.setString(index++, model.getCustomer().getId());
-            p.setString(index++, dateToString(model.getCreatedAt()));
-            p.setString(index++, dateToString(now));
-            p.setString(index++, dateToString(model.getDeletedAt()));
-            p.setString(index++, model.getId());
-            success = p.execute();
-
-            model.setUpdatedAt(now);
-
+            model.setUpdatedAt(new Date());
+            rs.absolute(model.getIndex());
+            rs.updateString("id", model.getId());
+            rs.updateString("username", model.getUsername());
+            rs.updateString("password", model.getPassword());
+            rs.updateString("customerId", model.getCustomerId());
+            rs.updateString("createdAt", dateToString(model.getCreatedAt()));
+            rs.updateString("updatedAt", dateToString(model.getUpdatedAt()));
+            rs.updateString("deletedAt", dateToString(model.getDeletedAt()));
+            rs.updateRow();
+            success = true;
         } catch (SQLException e) {
+            e.printStackTrace();
             return success;
         }
         return success;
@@ -101,10 +78,12 @@ public class UserDAO extends DAO {
     protected void getData() {
         try {
 
-            ResultSet rs = conn.createStatement().executeQuery("select * from user where deletedAt = 'null';");
+            ResultSet rs = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE).executeQuery("select * from user");
+            this.rs = rs;
             while (rs.next()) {
                 User u = new User();
                 Customer c = (Customer) DAO.customerDB.findById(rs.getString("customerId"));
+                u.setIndex(rs.getRow());
                 u.setId(rs.getString("id"));
                 u.setUsername(rs.getString("username"));
                 u.setPassword(rs.getString("password"));

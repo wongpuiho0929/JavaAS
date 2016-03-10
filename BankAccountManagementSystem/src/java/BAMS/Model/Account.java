@@ -6,19 +6,19 @@ import BAMS.DAO.DAO;
 public class Account extends Model {
 
     protected String accountNo;
-    protected Customer customer;
-    protected Bank bank;
+    protected String customerId;
+    protected String bankId;
     protected double balance;
     private static AccountDAO db = DAO.accountDB;
-    private Currency currency;
+    protected String currencyId;
 
     public Account() {
     }
 
-    public Account(Customer c, Bank b, String accountNo, double balance) {
-        this.bank = b;
-        this.customer = c;
-        setAccountNo(accountNo);
+    public Account(String c, String b, String accountNo, double balance) {
+        this.bankId = b;
+        this.customerId = c;
+        this.accountNo = accountNo;
         this.balance = balance;
     }
 
@@ -35,11 +35,11 @@ public class Account extends Model {
     }
 
     public Currency getCurrency() {
-        return currency;
+        return (Currency) DAO.currencyDB.findById(this.currencyId);
     }
 
     public void setCurrency(Currency currency) {
-        this.currency = currency;
+        this.currencyId = currency.getId();
     }
 
     public void setBalance(double balance) {
@@ -47,21 +47,21 @@ public class Account extends Model {
     }
 
     public void setBank(Bank b) {
-        this.bank = b;
+        this.bankId = b.getId();
     }
 
     public void setCustomer(Customer c) {
-        this.customer = c;
+        this.customerId = c.id;
         c.addAccount(this);
 
     }
 
     public Customer getCustomer() {
-        return customer;
+        return DAO.customerDB.findById(this.customerId);
     }
 
     public Bank getBank() {
-        return bank;
+        return DAO.bankDB.findById(this.bankId);
     }
 
     public static Account findById(String id) {
@@ -72,10 +72,10 @@ public class Account extends Model {
         if (this.balance < money) {
             return false;
         }
-        if (this.currency.compareTo(ac.currency) == 0) {
-            ac.increaseBalance(money);
-            this.decreaseBalance(money);
-        }
+        
+        ac.increaseBalance(money);
+        this.decreaseBalance(money);
+
         return true;
     }
 

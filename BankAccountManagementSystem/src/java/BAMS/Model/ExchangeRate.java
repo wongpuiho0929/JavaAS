@@ -14,33 +14,33 @@ import BAMS.DAO.ExchangeRateDAO;
  */
 public class ExchangeRate extends Model {
 
-    private Currency currency1, currency2;
+    private String currency1Id, currency2Id;
     private double rate;
     private static ExchangeRateDAO db = DAO.exchangeRateDB;
             
     public ExchangeRate() {
     }
 
-    public ExchangeRate(Currency currency1, Currency currency2, double rate) {
-        this.currency1 = currency1;
-        this.currency2 = currency2;
+    public ExchangeRate(String currency1, String currency2, double rate) {
+        this.currency1Id = currency1;
+        this.currency2Id = currency2;
         this.rate = rate;
     }
 
     public Currency getCurrency1() {
-        return currency1;
+        return DAO.currencyDB.findById(this.currency1Id);
     }
 
     public void setCurrency1(Currency currency1) {
-        this.currency1 = currency1;
+        this.currency1Id = currency1.getId();
     }
 
     public Currency getCurrency2() {
-        return currency2;
+       return DAO.currencyDB.findById(this.currency2Id);
     }
 
     public void setCurrency2(Currency currency2) {
-        this.currency2 = currency2;
+        this.currency2Id = currency2.getId();
     }
 
     public double getRate() {
@@ -52,7 +52,7 @@ public class ExchangeRate extends Model {
     }
 
 
-    public static Customer findById(String id) {
-        return (Customer) findById(db, id);
+    public static ExchangeRate findById(String id) {
+        return (ExchangeRate) findById(db, id);
     }
 }

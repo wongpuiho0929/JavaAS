@@ -19,63 +19,39 @@ public class AccountDAO extends DAO {
     }
 
     @Override
-    public synchronized boolean create(Model m) {
+    public synchronized boolean create(Model m) throws Exception {
         Account model = (Account) m;
-        boolean success = false;
-        try {
-
-            String sql = "Insert Into Account values(?,?,?,?,?,?,?,?,?)";
-            PreparedStatement p = conn.prepareStatement(sql);
-            int index = 1;
-            String nextId = getNextId();
-            p.setString(index++, nextId);
-            p.setString(index++, model.getCustomer().getId());
-            p.setString(index++, model.getBank().getId());
-            p.setString(index++, model.getAccountNo());
-            p.setDouble(index++, model.getBalance());
-            p.setString(index++, model.getCurrency().getId());
-            p.setString(index++, dateToString(model.getCreatedAt()));
-            p.setString(index++, dateToString(model.getUpdatedAt()));
-            p.setString(index++, dateToString(model.getDeletedAt()));
-
-            success = p.execute();
-
-            model.setId(nextId);
+        if (super.create(m)) {
             model.getBank().addAccount(model);
             model.getCustomer().addAccount(model);
             data.put(model.getId(), model);
-//            System.out.println("Account added.");
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return success;
+            return true;
         }
-
-        return success;
+        return false;
     }
 
     @Override
     public synchronized boolean update(Model m) {
         Account model = (Account) m;
         boolean success = false;
+        if (model.isDeleted()) {
+            return success;
+        }
         try {
-
-            String sql = "update Account set customerId=?,bankId=?,accountNo=?,balance=?,currencyId=?,createdAt=?,updatedAt=?,deletedAt=? where id=?";
-            PreparedStatement p = conn.prepareStatement(sql);
-            int index = 1;
             Date now = new Date();
-            p.setString(index++, model.getCustomer().getId());
-            p.setString(index++, model.getBank().getId());
-            p.setString(index++, model.getAccountNo());
-            p.setDouble(index++, model.getBalance());
-            p.setString(index++, model.getCurrency().getId());
-            p.setString(index++, dateToString(model.getCreatedAt()));
-            p.setString(index++, dateToString(now));
-            p.setString(index++, dateToString(model.getDeletedAt()));
-            p.setString(index++, model.getId());
-            success = p.execute();
-
             model.setUpdatedAt(now);
+            rs.absolute(model.getIndex());
+            rs.updateString("id", model.getId());
+            rs.updateString("customerId", model.getCustomer().getId());
+            rs.updateString("bankId", model.getBank().getId());
+            rs.updateString("accountNo", model.getAccountNo());
+            rs.updateDouble("balance", model.getBalance());
+            rs.updateString("currencyId", model.getCurrency().getId());
+            rs.updateString("createdAt", dateToString(model.getCreatedAt()));
+            rs.updateString("updatedAt", dateToString(model.getUpdatedAt()));
+            rs.updateString("deletedAt", dateToString(model.getDeletedAt()));
+            rs.updateRow();
+            success = true;
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -93,7 +69,8 @@ public class AccountDAO extends DAO {
     protected void getData() {
         try {
 
-            ResultSet rs = conn.createStatement().executeQuery("select * from account where deletedAt  = 'null';");
+            ResultSet rs = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE).executeQuery("select * from account");
+            this.rs = rs;
             while (rs.next()) {
                 Account ac = new Account();
                 Customer c = (Customer) DAO.customerDB.findById(rs.getString("customerId"));
@@ -117,7 +94,7 @@ public class AccountDAO extends DAO {
     }
 
     @Override
-    public Model findById(String Id) {
+    public Account findById(String Id) {
         return (Account) data.get(Id);
     }
 

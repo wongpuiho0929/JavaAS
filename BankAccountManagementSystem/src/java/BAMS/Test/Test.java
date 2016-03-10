@@ -14,12 +14,12 @@ public class Test {
     public static void main(String[] args) {
         try {
             setting();
-//            createTable();
-//            createData();
-            refreshData();
-            ArrayList<Model> acList = DAO.accountDB.getDataList();
-            Account ac = (Account)acList.get(0);
-            System.out.println("Currency : "+ac.getCurrency().getName());
+            createTable();
+            createData();
+//            refreshData();
+//            User u = DAO.userDB.findByUsername("Cust10");
+//            u.setPassword("0000");
+//            System.out.println("Success:" + DAO.userDB.update(u));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -47,12 +47,12 @@ public class Test {
         b2.setAddress("4-4A Des Voeux Road Central, Hong Kong");
         b2.setTel("28868868");
         DAO.bankDB.create(b2);
-        
+
         System.out.println("createBank() finish.");
     }
-    
+
     private static void createUserCustomer() throws Exception {
-        
+
         ArrayList<Model> userList = new ArrayList<>();
         for (int i = 0; i < 200; i++) {
             User u = new User();
@@ -63,6 +63,7 @@ public class Test {
             c.setTel(20022202 + i + "");
             c.setAddress("IVE");
             c.setUser(u);
+            DAO.customerDB.create(c);
             u.setType(UserType.Customer);
             u.setCustomer(c);
 //            System.out.println("adding Customer...");
@@ -71,8 +72,8 @@ public class Test {
         DAO.userDB.create(userList);
         System.out.println("createUserCustomer() finish.");
     }
-    
-    private static void createAccount() throws Exception{
+
+    private static void createAccount() throws Exception {
         int i = 0;
         ArrayList<Model> currencyList = DAO.currencyDB.getDataList();
         ArrayList<Model> bankList = DAO.bankDB.getDataList();
@@ -84,22 +85,23 @@ public class Test {
             Account ac = new Account();
             ac.setBalance(balance);
             ac.setAccountNo(acNo);
-            ac.setCustomer(((User)user).getCustomer());
-            ac.setBank((Bank)bankList.get(((int)(Math.random()*100) % 2)));
-            ac.setCurrency((Currency)currencyList.get(((int)(Math.random()*100) % currencyList.size())));
+            ac.setCustomer(((User) user).getCustomer());
+            ac.setBank((Bank) bankList.get(((int) (Math.random() * 100) % 2)));
+            ac.setCurrency((Currency) currencyList.get(((int) (Math.random() * 100) % currencyList.size())));
 //            System.out.println("adding Account...");
             accountList.add(ac);
         }
         DAO.accountDB.create(accountList);
         System.out.println("createAccount() finish.");
     }
-    
+
     private static void createData() throws Exception {
+        refreshData();
         createBank();
         createUserCustomer();
         createCurrency();
         createAccount();
-        
+
         System.out.println("Data Create Finish");
     }
 
@@ -112,11 +114,11 @@ public class Test {
         String user = "root";
         String pwd = "";
         DAO.setting(url, user, pwd);
-        
+
         System.out.println("Setting Finish");
     }
 
-    private static void createCurrency() throws Exception{
+    private static void createCurrency() throws Exception {
         Currency c = new Currency();
         c.setName("Hong Kong Dollar"); //
         c.setPrefix("HKD");

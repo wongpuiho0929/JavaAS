@@ -8,14 +8,25 @@ public class User extends Model {
 
     private String username, password;
     private UserType type;
-    private Customer customer;
+    private String customerId;
     private static UserDAO db = DAO.userDB;
+
     public User() {
 
     }
+
+    public String getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(String customerId) {
+        this.customerId = customerId;
+    }
+
     public boolean checkPassword(String pwd) {
         return pwd.equals(this.getPassword());
     }
+
     public String getUsername() {
         return username;
     }
@@ -41,11 +52,11 @@ public class User extends Model {
     }
 
     public Customer getCustomer() {
-        return customer;
+        return DAO.customerDB.findById(this.customerId);
     }
 
     public void setCustomer(Customer c) {
-        this.customer = c;
+        setCustomerId(c.id);
     }
 
 }
