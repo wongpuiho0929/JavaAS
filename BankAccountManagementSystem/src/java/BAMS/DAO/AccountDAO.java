@@ -5,7 +5,6 @@ import BAMS.Model.Bank;
 import BAMS.Model.Currency;
 import BAMS.Model.Customer;
 import BAMS.Model.Model;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
@@ -96,6 +95,25 @@ public class AccountDAO extends DAO {
     @Override
     public Account findById(String Id) {
         return (Account) data.get(Id);
+    }
+
+    @Override
+    public void getUpdateFromResultSet(Model m) throws Exception {
+        if(m.getId()==null)
+            throw new Exception("Please save the object before get update.");
+        
+        Account model = (Account)m;
+        
+        rs.absolute(model.getIndex());
+        rs.refreshRow();
+        model.setAccountNo(rs.getString("accountNo"));
+        model.setBalance(rs.getDouble("balance"));
+        model.setBank(DAO.bankDB.findById(rs.getString("bankId")));
+        model.setCustomer(DAO.customerDB.findById(rs.getString("customerId")));
+        model.setCurrency(DAO.currencyDB.findById(rs.getString("currencyId")));
+        model.setCreatedAt(stringToDate(rs.getString("createdAt")));
+        model.setUpdatedAt(stringToDate(rs.getString("updatedAt")));
+        model.setDeletedAt(stringToDate(rs.getString("deletedAt")));
     }
 
 }

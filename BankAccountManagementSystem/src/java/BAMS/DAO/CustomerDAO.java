@@ -109,4 +109,21 @@ public class CustomerDAO extends DAO {
         super.clearData();
         dataByUsername = new Hashtable<>();
     }
+
+    @Override
+    public void getUpdateFromResultSet(Model m) throws Exception {
+        if (m.getId() == null) {
+            throw new Exception("Please save the object before get update.");
+        }
+
+        Customer model = (Customer) m;
+        rs.absolute(model.getIndex());
+        rs.refreshRow();
+        model.setName(rs.getString("name"));
+        model.setAddress(rs.getString("address"));
+        model.setTel(rs.getString("tel"));
+        model.setCreatedAt(stringToDate(rs.getString("createdAt")));
+        model.setUpdatedAt(stringToDate(rs.getString("updatedAt")));
+        model.setDeletedAt(stringToDate(rs.getString("deletedAt")));
+    }
 }

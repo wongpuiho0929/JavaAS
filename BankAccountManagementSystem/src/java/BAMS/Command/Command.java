@@ -11,9 +11,9 @@ public abstract class Command {
 
     public abstract void setting(HttpServletRequest request, HttpServletResponse response);
 
-    public abstract void run();
+    public abstract void run() throws Exception;
 
-    public abstract void log();
+    public abstract void log() throws Exception;
 
     public static Command getCommand(Target target, Action action) {
 

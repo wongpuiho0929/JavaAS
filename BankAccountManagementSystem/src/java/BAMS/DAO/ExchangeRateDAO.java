@@ -8,7 +8,6 @@ package BAMS.DAO;
 import BAMS.Model.Currency;
 import BAMS.Model.ExchangeRate;
 import BAMS.Model.Model;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -57,6 +56,7 @@ public class ExchangeRateDAO extends DAO {
             rs.updateString("createdAt", dateToString(model.getCreatedAt()));
             rs.updateString("updatedAt", dateToString(model.getUpdatedAt()));
             rs.updateString("deletedAt", dateToString(model.getDeletedAt()));
+            rs.updateRow();
             success = true;
 
         } catch (SQLException e) {
@@ -110,6 +110,18 @@ public class ExchangeRateDAO extends DAO {
         return null;
     }
 
+    public void removeFromPrefix(ExchangeRate er) {
+        if (dataByPrefix.containsKey(er.getCurrency1().getPrefix() + er.getCurrency2().getPrefix())) {
+            dataByPrefix.remove(er.getCurrency1().getPrefix() + er.getCurrency2().getPrefix(), er);
+        }
+    }
+
+    public void addToPrefix(ExchangeRate er){
+      if (!dataByPrefix.containsKey(er.getCurrency1().getPrefix() + er.getCurrency2().getPrefix())) {
+            dataByPrefix.put(er.getCurrency1().getPrefix() + er.getCurrency2().getPrefix(), er);
+        }
+    }
+    
     @Override
     public ExchangeRate findById(String Id) {
         if (data.contains(Id)) {
@@ -126,6 +138,25 @@ public class ExchangeRateDAO extends DAO {
     protected void clearData() {
         super.clearData(); //To change body of generated methods, choose Tools | Templates.
         dataByPrefix = new Hashtable<>();
+    }
+
+    @Override
+    public void getUpdateFromResultSet(Model m) throws Exception {
+        if (m.getId() == null) {
+            throw new Exception("Please save the object before get update.");
+        }
+
+        ExchangeRate model = (ExchangeRate) m;
+        rs.absolute(model.getIndex());
+        rs.refreshRow();
+        removeFromPrefix(model);
+        model.setCurrency1(DAO.currencyDB.findById(rs.getString("currency1Id")));
+        model.setCurrency2(DAO.currencyDB.findById(rs.getString("currency2Id")));
+        model.setRate(rs.getDouble("rate"));
+        addToPrefix(model);
+        model.setCreatedAt(stringToDate(rs.getString("createdAt")));
+        model.setUpdatedAt(stringToDate(rs.getString("updatedAt")));
+        model.setDeletedAt(stringToDate(rs.getString("deletedAt")));
     }
 
 }

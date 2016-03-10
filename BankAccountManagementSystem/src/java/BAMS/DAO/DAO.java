@@ -57,7 +57,7 @@ public abstract class DAO {
 
     public Date stringToDate(String s) {
         try {
-            if (s.equals("null")) {
+            if (s == null || s.isEmpty()) {
                 return null;
             }
             return formatter.parse(s);
@@ -336,4 +336,6 @@ public abstract class DAO {
         super.finalize();
     }
 
+    public abstract void getUpdateFromResultSet(Model m) throws Exception;
+    
 }

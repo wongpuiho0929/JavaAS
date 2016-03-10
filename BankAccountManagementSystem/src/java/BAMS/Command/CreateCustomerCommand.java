@@ -11,10 +11,9 @@ public class CreateCustomerCommand extends Command {
     private HttpServletResponse response;
 
     @Override
-    public void run() {
+    public void run() throws Exception {
         /* some code */
-        
-        
+
         log();
     }
 
@@ -25,10 +24,10 @@ public class CreateCustomerCommand extends Command {
     }
 
     @Override
-    public void log() {
+    public void log() throws Exception {
         History h = new History();
         /* some code */
-        
+
         DAO.historyDB.create(h);
     }
 

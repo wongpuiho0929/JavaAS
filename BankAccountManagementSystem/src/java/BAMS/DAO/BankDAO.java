@@ -103,4 +103,23 @@ public class BankDAO extends DAO {
         super.clearData();
         dataByName = new Hashtable<>();
     }
+
+    @Override
+    public void getUpdateFromResultSet(Model m) throws Exception {
+        if(m.getId()==null)
+            throw new Exception("Please save the object before get update.");
+        
+        Bank model = (Bank)m;
+        rs.absolute(model.getIndex());
+        rs.refreshRow();
+        dataByName.remove(model.getName());
+        model.setAddress(rs.getString("address"));
+        model.setName(rs.getString("name"));
+        dataByName.put(model.getName(), model);
+        model.setTel(rs.getString("tel"));
+        model.setCreatedAt(stringToDate(rs.getString("createdAt")));
+        model.setUpdatedAt(stringToDate(rs.getString("updatedAt")));
+        model.setDeletedAt(stringToDate(rs.getString("deletedAt")));
+        
+    }
 }

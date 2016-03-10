@@ -83,4 +83,8 @@ public abstract class Model implements Serializable {
     public boolean isDeleted(){
         return deletedAt != null;
     }
+    
+    public void refresh() throws Exception{
+        db.getUpdateFromResultSet(this);
+    }
 }

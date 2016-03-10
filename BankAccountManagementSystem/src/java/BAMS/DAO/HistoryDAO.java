@@ -9,7 +9,6 @@ import BAMS.Model.Account;
 import BAMS.Model.Customer;
 import BAMS.Model.History;
 import BAMS.Model.Model;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
@@ -56,6 +55,7 @@ public class HistoryDAO extends DAO {
             rs.updateString("createdAt", dateToString(model.getCreatedAt()));
             rs.updateString("updatedAt", dateToString(model.getUpdatedAt()));
             rs.updateString("deletedAt", dateToString(model.getDeletedAt()));
+            rs.updateRow();
             success = true;
 
         } catch (SQLException e) {
@@ -99,6 +99,24 @@ public class HistoryDAO extends DAO {
     @Override
     public History findById(String Id) {
         return (History) data.get(Id);
+    }
+
+    @Override
+    public void getUpdateFromResultSet(Model m) throws Exception {
+        if (m.getId() == null) {
+            throw new Exception("Please save the object before get update.");
+        }
+
+        History model = (History) m;
+        rs.absolute(model.getIndex());
+        rs.refreshRow();
+        model.setAccount(DAO.accountDB.findById(rs.getString("accountId")));
+        model.setBank(DAO.bankDB.findById(rs.getString("bankId")));
+        model.setCustomer(DAO.customerDB.findById(rs.getString("customerId")));
+        model.setAction(rs.getString("action"));
+        model.setCreatedAt(stringToDate(rs.getString("createdAt")));
+        model.setUpdatedAt(stringToDate(rs.getString("updatedAt")));
+        model.setDeletedAt(stringToDate(rs.getString("deletedAt")));
     }
 
 }

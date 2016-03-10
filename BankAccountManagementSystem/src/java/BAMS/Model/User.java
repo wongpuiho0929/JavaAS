@@ -9,10 +9,9 @@ public class User extends Model {
     private String username, password;
     private UserType type;
     private String customerId;
-    private static UserDAO db = DAO.userDB;
 
     public User() {
-
+        db = DAO.userDB;
     }
 
     public String getCustomerId() {

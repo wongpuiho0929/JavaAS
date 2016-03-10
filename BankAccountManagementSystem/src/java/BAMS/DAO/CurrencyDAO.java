@@ -7,7 +7,6 @@ package BAMS.DAO;
 
 import BAMS.Model.Currency;
 import BAMS.Model.Model;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
@@ -44,22 +43,18 @@ public class CurrencyDAO extends DAO {
         if (model.isDeleted()) {
             return success;
         }
-        try {
-            Date now = new Date();
-            model.setUpdatedAt(now);
-            rs.absolute(model.getIndex());
-            rs.updateString("id", model.getId());
-            rs.updateString("name", model.getName());
-            rs.updateString("prefix", model.getPrefix());
-            rs.updateString("createdAt", dateToString(model.getCreatedAt()));
-            rs.updateString("updatedAt", dateToString(model.getUpdatedAt()));
-            rs.updateString("deletedAt", dateToString(model.getDeletedAt()));
-            success = true;
+        Date now = new Date();
+        model.setUpdatedAt(now);
+        rs.absolute(model.getIndex());
+        rs.updateString("id", model.getId());
+        rs.updateString("name", model.getName());
+        rs.updateString("prefix", model.getPrefix());
+        rs.updateString("createdAt", dateToString(model.getCreatedAt()));
+        rs.updateString("updatedAt", dateToString(model.getUpdatedAt()));
+        rs.updateString("deletedAt", dateToString(model.getDeletedAt()));
+        rs.updateRow();
+        success = true;
 
-        } catch (SQLException e) {
-            e.printStackTrace();
-            success = false;
-        }
         return success;
     }
 
@@ -105,6 +100,24 @@ public class CurrencyDAO extends DAO {
             return dataByPrefix.get(prefix);
         }
         return null;
+    }
+
+    @Override
+    public void getUpdateFromResultSet(Model m) throws Exception {
+        if (m.getId() == null) {
+            throw new Exception("Please save the object before get update.");
+        }
+
+        Currency model = (Currency) m;
+        rs.absolute(model.getIndex());
+        rs.refreshRow();
+        dataByPrefix.remove(model.getPrefix());
+        model.setName(rs.getString("name"));
+        model.setPrefix(rs.getString("prefix"));
+        dataByPrefix.put(model.getPrefix(), model);
+        model.setCreatedAt(stringToDate(rs.getString("createdAt")));
+        model.setUpdatedAt(stringToDate(rs.getString("updatedAt")));
+        model.setDeletedAt(stringToDate(rs.getString("deletedAt")));
     }
 
 }

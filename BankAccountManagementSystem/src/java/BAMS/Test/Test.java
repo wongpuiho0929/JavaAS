@@ -5,6 +5,7 @@ import BAMS.Enum.UserType;
 import BAMS.Model.*;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Scanner;
 
 public class Test {
 
@@ -13,13 +14,17 @@ public class Test {
 
     public static void main(String[] args) {
         try {
+            Scanner input = new Scanner(System.in);
             setting();
-            createTable();
-            createData();
-//            refreshData();
-//            User u = DAO.userDB.findByUsername("Cust10");
-//            u.setPassword("0000");
-//            System.out.println("Success:" + DAO.userDB.update(u));
+//            createTable();
+//            createData();
+            refreshData();
+            User u = DAO.userDB.findByUsername("Cust10");
+            System.out.println("pwd:"+u.getPassword());
+            String s = input.nextLine();
+            u.refresh();
+            System.out.println("pwd:"+u.getPassword());
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -123,39 +128,51 @@ public class Test {
         c.setName("Hong Kong Dollar"); //
         c.setPrefix("HKD");
         DAO.currencyDB.create(c);
+        c = new Currency();
         c.setName("Swiss Franc");
         c.setPrefix("CHF");
         DAO.currencyDB.create(c);
+        c = new Currency();
         c.setName("Singapore Dollar");
         c.setPrefix("SGD");
         DAO.currencyDB.create(c);
+        c = new Currency();
         c.setName("US Dollar");
         c.setPrefix("USD");
         DAO.currencyDB.create(c);
+        c = new Currency();
         c.setName("Australian Dollar");
         c.setPrefix("AUD");
         DAO.currencyDB.create(c);
+        c = new Currency();
         c.setName("Swedish Krone");
         c.setPrefix("SEK");
         DAO.currencyDB.create(c);
+        c = new Currency();
         c.setName("British Pound");
         c.setPrefix("GBP");
         DAO.currencyDB.create(c);
+        c = new Currency();
         c.setName("Canadian Dollar");
         c.setPrefix("CAD");
         DAO.currencyDB.create(c);
+        c = new Currency();
         c.setName("Danish Krone");
         c.setPrefix("DKK");
         DAO.currencyDB.create(c);
+        c = new Currency();
         c.setName("Japanese Yen");
         c.setPrefix("JPY");
         DAO.currencyDB.create(c);
+        c = new Currency();
         c.setName("New Zealand Dollar");
         c.setPrefix("NZD");
         DAO.currencyDB.create(c);
+        c = new Currency();
         c.setName("Renminbi");
         c.setPrefix("RMB");
         DAO.currencyDB.create(c);
+        c = new Currency();
         c.setName("Euro");
         c.setPrefix("EUR");
         DAO.currencyDB.create(c);

@@ -10,7 +10,6 @@ import BAMS.Model.Customer;
 import BAMS.Model.Model;
 import BAMS.Model.User;
 import BAMS.Enum.UserType;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
@@ -57,6 +56,7 @@ public class UserDAO extends DAO {
             rs.updateString("username", model.getUsername());
             rs.updateString("password", model.getPassword());
             rs.updateString("customerId", model.getCustomerId());
+            rs.updateString("type", model.getType().name());
             rs.updateString("createdAt", dateToString(model.getCreatedAt()));
             rs.updateString("updatedAt", dateToString(model.getUpdatedAt()));
             rs.updateString("deletedAt", dateToString(model.getDeletedAt()));
@@ -123,5 +123,25 @@ public class UserDAO extends DAO {
     protected void clearData() {
         super.clearData();
         dataByUsername = new Hashtable<>();
+    }
+
+    @Override
+    public void getUpdateFromResultSet(Model m) throws Exception {
+        if (m.getId() == null) {
+            throw new Exception("Please save the object before get update.");
+        }
+
+        User model = (User) m;
+        rs.absolute(model.getIndex());
+        rs.refreshRow();
+        dataByUsername.remove(model.getUsername());
+        model.setUsername(rs.getString("username"));
+        model.setPassword(rs.getString("password"));
+        model.setCustomer(DAO.customerDB.findById(rs.getString("customerId")));
+        model.setType(UserType.valueOf(rs.getString("type")));
+        dataByUsername.put(model.getUsername(), model);
+        model.setCreatedAt(stringToDate(rs.getString("createdAt")));
+        model.setUpdatedAt(stringToDate(rs.getString("updatedAt")));
+        model.setDeletedAt(stringToDate(rs.getString("deletedAt")));
     }
 }
